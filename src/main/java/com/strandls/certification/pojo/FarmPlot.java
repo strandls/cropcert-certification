@@ -14,6 +14,7 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.strandls.certification.pojo.enumtype.FieldSeparationType;
 import com.strandls.certification.pojo.enumtype.Quality;
@@ -73,6 +74,7 @@ public class FarmPlot implements Serializable{
 	@Column(name = "multiple_owner_with_organic")
 	private Boolean multipleOwnerWithOrganic;
 	@ManyToOne
+	@JsonIgnore
 	@JoinColumn(name = "inspection_id")
 	private Inspection inspection;
 

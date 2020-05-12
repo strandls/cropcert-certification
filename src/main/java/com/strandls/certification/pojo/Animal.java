@@ -13,6 +13,7 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.strandls.certification.pojo.enumtype.HusbandaryType;
 
@@ -45,6 +46,7 @@ public class Animal implements Serializable{
 	@Column(name = "medication")
 	private Boolean medication;
 	@ManyToOne
+	@JsonIgnore
 	@JoinColumn(name = "inspection_id")
 	private Inspection inspection;
 

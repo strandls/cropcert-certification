@@ -430,6 +430,8 @@ public class Inspection implements Serializable{
 	}
 
 	public void setFarms(Set<FarmPlot> farms) {
+		for(FarmPlot farmPlot : farms)
+			farmPlot.setInspection(this);
 		this.farms = farms;
 	}
 
@@ -510,6 +512,8 @@ public class Inspection implements Serializable{
 	}
 
 	public void setAnimals(Set<Animal> animals) {
+		for(Animal animal : animals) 
+			animal.setInspection(this);
 		this.animals = animals;
 	}
 
@@ -526,6 +530,9 @@ public class Inspection implements Serializable{
 	}
 
 	public void setAdvices(Set<Advice> advices) {
+		for(Advice advice : advices) {
+			advice.setInspection(this);
+		}
 		this.advices = advices;
 	}
 
