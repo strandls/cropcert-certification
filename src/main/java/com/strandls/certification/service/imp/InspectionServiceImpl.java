@@ -5,6 +5,8 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.hibernate.Hibernate;
+
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -23,6 +25,17 @@ public class InspectionServiceImpl extends AbstractService<Inspection> implement
 	public InspectionServiceImpl(InspectionDao dao) {
 		super(dao);
 	}
+	
+	@Override
+	public Inspection findById(Long id) {
+		Inspection inspection = super.findById(id);
+		
+		Hibernate.initialize(inspection.getAdvices());
+		Hibernate.initialize(inspection.getAnimals());
+		Hibernate.initialize(inspection.getFarms());
+		
+		return inspection;
+	}
 
 	@Override
 	public List<Inspection> findAll(HttpServletRequest request, Integer limit, Integer offset) {
@@ -32,6 +45,7 @@ public class InspectionServiceImpl extends AbstractService<Inspection> implement
 	@Override
 	public Inspection save(HttpServletRequest request, String jsonString) throws JsonParseException, JsonMappingException, IOException {
 		Inspection inspection = objectMapper.readValue(jsonString, Inspection.class);
+		inspection = save(inspection);
 		return inspection;
 	}
 

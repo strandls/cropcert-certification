@@ -8,12 +8,12 @@ import javax.xml.bind.annotation.XmlType;
 @XmlEnum
 public enum Quality {
 
-	@XmlEnumValue("MANY")
-	MANY("MANY"),
-	@XmlEnumValue("FEW")
-	FEW("FEW"),
-	@XmlEnumValue("NONE")
-	NONE("NONE");
+	@XmlEnumValue("GOOD")
+	GOOD("GOOD"),
+	@XmlEnumValue("FAIR")
+	FAIR("FAIR"),
+	@XmlEnumValue("POOR")
+	POOR("POOR");
 	
 	private String value;
 	

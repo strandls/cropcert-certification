@@ -31,7 +31,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.servlet.GuiceServletContextListener;
-import com.strandls.certification.controller.CertificaitonControllerModule;
+import com.strandls.certification.controller.ControllerModule;
 import com.strandls.certification.dao.DaoModule;
 import com.strandls.certification.service.ServiceModule;
 import com.sun.jersey.guice.JerseyServletModule;
@@ -76,7 +76,7 @@ public class CertificationServeletContextListener extends GuiceServletContextLis
 
 				serve("/api/*").with(GuiceContainer.class, props);
 			}
-		}, new CertificaitonControllerModule(), new DaoModule(), new ServiceModule());
+		}, new ControllerModule(), new DaoModule(), new ServiceModule());
 		return injector;
 	}
 

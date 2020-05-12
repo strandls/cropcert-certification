@@ -5,9 +5,12 @@ import java.sql.Timestamp;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -15,14 +18,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import io.swagger.annotations.ApiModel;
-import lombok.Getter;
-import lombok.Setter;
 
 @Entity
 @Table(name = "advice")
 @XmlRootElement
 @JsonIgnoreProperties
-@Getter@Setter
 @ApiModel("Advice")
 public class Advice implements Serializable{
 
@@ -41,6 +41,44 @@ public class Advice implements Serializable{
 	private String advice;
 	@Column(name = "time")
 	private Timestamp time;
-	@Column(name = "inspection")
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "inspection_id")
 	private Inspection inspection;
+	public Advice() {
+		super();
+	}
+	public Advice(Long id, String advice, Timestamp time, Inspection inspection) {
+		super();
+		this.id = id;
+		this.advice = advice;
+		this.time = time;
+		this.inspection = inspection;
+	}
+	public Long getId() {
+		return id;
+	}
+	public void setId(Long id) {
+		this.id = id;
+	}
+	public String getAdvice() {
+		return advice;
+	}
+	public void setAdvice(String advice) {
+		this.advice = advice;
+	}
+	public Timestamp getTime() {
+		return time;
+	}
+	public void setTime(Timestamp time) {
+		this.time = time;
+	}
+	public Inspection getInspection() {
+		return inspection;
+	}
+	public void setInspection(Inspection inspection) {
+		this.inspection = inspection;
+	}
+	public static long getSerialversionuid() {
+		return serialVersionUID;
+	}
 }

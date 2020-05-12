@@ -2,14 +2,22 @@ package com.strandls.certification.pojo;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.HashSet;
+import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -19,14 +27,11 @@ import com.strandls.certification.pojo.enumtype.Decision;
 import com.strandls.certification.pojo.enumtype.Quantity;
 
 import io.swagger.annotations.ApiModel;
-import lombok.Getter;
-import lombok.Setter;
 
 @Entity
 @Table(name = "inspection")
 @XmlRootElement
 @JsonIgnoreProperties
-@Getter@Setter
 @ApiModel("Inspection")
 public class Inspection implements Serializable{
 
@@ -40,23 +45,13 @@ public class Inspection implements Serializable{
 	@SequenceGenerator(name = "inspection_id_generator", sequenceName = "inspection_id_seq", allocationSize = 1)
 	@Column(name = "id", updatable = false, nullable = false)
 	private Long id;
+	
+	@ManyToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name = "farmer_inspection")
+	private FarmerDetails farmerInspection;
+	
 	@Column(name = "date")
 	private Timestamp date;
-	@Column(name = "district")
-	private String district;
-	@Column(name = "field_coordinator_name")
-	private String fieldCoordinatorName;
-	@Column(name = "village")
-	private String village;
-	@Column(name = "colleting_center")
-	private String colletingCenter;
-	@Column(name = "farmer_name")
-	private String farmerName;
-	@Column(name = "farmer_code")
-	private String farmerCode;
-	@Column(name = "number_of_coffee_field")
-	private Long numberOfCoffeeField;
-
 	
 	// Verification 
 	@Column(name = "verification_date")
@@ -104,7 +99,8 @@ public class Inspection implements Serializable{
 	private String comments;
 	
 	// Farm list for the farmer;
-	//private List<FarmPlot> farms;
+	@OneToMany(mappedBy = "inspection", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	private Set<FarmPlot> farms = new HashSet<FarmPlot>();
 	
 	// Summary column
 	@Column(name = "number_of_coffee_fields")
@@ -129,14 +125,16 @@ public class Inspection implements Serializable{
 	private Boolean chemicalTreatmentOnLivestock;
 	@Column(name = "livestock_treatment_conducted_5m_from_coffee")
 	private Boolean livestockTreatmentConducted5mFromCoffee;
-	//private List<Animal> animals;
+	@OneToMany(mappedBy = "inspection", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	private Set<Animal> animals = new HashSet<Animal>();
 	
 	// Recommendation;
 	@Column(name = "has_farmer_implemented_previous_advice")
 	@Enumerated(EnumType.STRING)
 	private Decision hasFarmerImplementedPreviousAdvice;
 	
-	//private List<Advice> advices;
+	@OneToMany(mappedBy = "inspection", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	private Set<Advice> advices = new HashSet<Advice>();
 	@Column(name = "made_serious_violation")
 	private Boolean madeSeriousViolation;
 	@Column(name = "violation_date")
@@ -157,13 +155,485 @@ public class Inspection implements Serializable{
 	@Column(name = "is_ft_contract_person_appointed")
 	private Boolean isFTContractPersonAppointed;
 
-	@Column(name = "farmer")
+	@JoinColumn(name = "farmer")
+	@OneToOne(cascade = CascadeType.ALL)
 	private Signature farmer;
-	@Column(name = "field_coordinator")
+	@JoinColumn(name = "field_coordinator")
+	@OneToOne(cascade = CascadeType.ALL)
 	private Signature fieldCoordinator;
-	@Column(name = "ics_manager")
+	@JoinColumn(name = "ics_manager")
+	@OneToOne(cascade = CascadeType.ALL)
 	private Signature icsManager;
-	@Column(name = "chair_person")
+	@JoinColumn(name = "chair_person")
+	@OneToOne(cascade = CascadeType.ALL)
 	private Signature chairPerson;
-	
+
+	public Inspection() {
+		super();
+	}
+
+	public Inspection(Long id, FarmerDetails farmerInspection, Timestamp date, Timestamp verificationDate,
+			Timestamp farmerContract, Timestamp lastUsedChemicals, Boolean chemicalsOnIntercrop,
+			Boolean chemicalsOnNonCoffeeField, Boolean manure90DaysOrLossBeforeHarvest,
+			Boolean understandingOfOrganicFTStandards, Boolean weedControlAdequate, Quantity nonCoffeeTreesPlanted,
+			Boolean signsOfErosion, Boolean erosionControlAdequate, Boolean burningOfCropWaste,
+			Boolean farmerHireLabour, Boolean isLabourFairlyTreated, Boolean isChildLabourImployed,
+			Quantity plasticDisposal, Boolean isOtherWasteDisposalAdequate, Boolean isHHMakingJointDecision,
+			Boolean isHHTakingFarmingAsFamilyBusiness, String comments, Set<FarmPlot> farms,
+			Integer numberOfCoffeeFields, Double areaUnderCoffee, Long productiveTrees, Double totalAreaOfFarm,
+			Boolean knownToHarvestRipeCherries, Boolean practicesPostHarvestHandlling, Boolean hasLiveStock,
+			Boolean chemicalTreatmentOnLivestock, Boolean livestockTreatmentConducted5mFromCoffee, Set<Animal> animals,
+			Decision hasFarmerImplementedPreviousAdvice, Set<Advice> advices, Boolean madeSeriousViolation,
+			Timestamp violationDate, Boolean isRecommendedOrganicCertificatation, Boolean boardAGMMinutesKept,
+			Boolean membershipListsAndSharesUpdated, Boolean isAnnualBudgetAndAuditedAccounts,
+			Boolean isFairTradePremiumBudgetAndWorkplan, Boolean isEnvirnmentCommitteAndItsWorkplan,
+			Boolean isFTContractPersonAppointed, Signature farmer, Signature fieldCoordinator, Signature icsManager,
+			Signature chairPerson) {
+		super();
+		this.id = id;
+		this.farmerInspection = farmerInspection;
+		this.date = date;
+		this.verificationDate = verificationDate;
+		this.farmerContract = farmerContract;
+		this.lastUsedChemicals = lastUsedChemicals;
+		this.chemicalsOnIntercrop = chemicalsOnIntercrop;
+		this.chemicalsOnNonCoffeeField = chemicalsOnNonCoffeeField;
+		this.manure90DaysOrLossBeforeHarvest = manure90DaysOrLossBeforeHarvest;
+		this.understandingOfOrganicFTStandards = understandingOfOrganicFTStandards;
+		this.weedControlAdequate = weedControlAdequate;
+		this.nonCoffeeTreesPlanted = nonCoffeeTreesPlanted;
+		this.signsOfErosion = signsOfErosion;
+		this.erosionControlAdequate = erosionControlAdequate;
+		this.burningOfCropWaste = burningOfCropWaste;
+		this.farmerHireLabour = farmerHireLabour;
+		this.isLabourFairlyTreated = isLabourFairlyTreated;
+		this.isChildLabourImployed = isChildLabourImployed;
+		this.plasticDisposal = plasticDisposal;
+		this.isOtherWasteDisposalAdequate = isOtherWasteDisposalAdequate;
+		this.isHHMakingJointDecision = isHHMakingJointDecision;
+		this.isHHTakingFarmingAsFamilyBusiness = isHHTakingFarmingAsFamilyBusiness;
+		this.comments = comments;
+		this.farms = farms;
+		this.numberOfCoffeeFields = numberOfCoffeeFields;
+		this.areaUnderCoffee = areaUnderCoffee;
+		this.productiveTrees = productiveTrees;
+		this.totalAreaOfFarm = totalAreaOfFarm;
+		this.knownToHarvestRipeCherries = knownToHarvestRipeCherries;
+		this.practicesPostHarvestHandlling = practicesPostHarvestHandlling;
+		this.hasLiveStock = hasLiveStock;
+		this.chemicalTreatmentOnLivestock = chemicalTreatmentOnLivestock;
+		this.livestockTreatmentConducted5mFromCoffee = livestockTreatmentConducted5mFromCoffee;
+		this.animals = animals;
+		this.hasFarmerImplementedPreviousAdvice = hasFarmerImplementedPreviousAdvice;
+		this.advices = advices;
+		this.madeSeriousViolation = madeSeriousViolation;
+		this.violationDate = violationDate;
+		this.isRecommendedOrganicCertificatation = isRecommendedOrganicCertificatation;
+		this.boardAGMMinutesKept = boardAGMMinutesKept;
+		this.membershipListsAndSharesUpdated = membershipListsAndSharesUpdated;
+		this.isAnnualBudgetAndAuditedAccounts = isAnnualBudgetAndAuditedAccounts;
+		this.isFairTradePremiumBudgetAndWorkplan = isFairTradePremiumBudgetAndWorkplan;
+		this.isEnvirnmentCommitteAndItsWorkplan = isEnvirnmentCommitteAndItsWorkplan;
+		this.isFTContractPersonAppointed = isFTContractPersonAppointed;
+		this.farmer = farmer;
+		this.fieldCoordinator = fieldCoordinator;
+		this.icsManager = icsManager;
+		this.chairPerson = chairPerson;
+	}
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public FarmerDetails getFarmerInspection() {
+		return farmerInspection;
+	}
+
+	public void setFarmerInspection(FarmerDetails farmerInspection) {
+		this.farmerInspection = farmerInspection;
+	}
+
+	public Timestamp getDate() {
+		return date;
+	}
+
+	public void setDate(Timestamp date) {
+		this.date = date;
+	}
+
+	public Timestamp getVerificationDate() {
+		return verificationDate;
+	}
+
+	public void setVerificationDate(Timestamp verificationDate) {
+		this.verificationDate = verificationDate;
+	}
+
+	public Timestamp getFarmerContract() {
+		return farmerContract;
+	}
+
+	public void setFarmerContract(Timestamp farmerContract) {
+		this.farmerContract = farmerContract;
+	}
+
+	public Timestamp getLastUsedChemicals() {
+		return lastUsedChemicals;
+	}
+
+	public void setLastUsedChemicals(Timestamp lastUsedChemicals) {
+		this.lastUsedChemicals = lastUsedChemicals;
+	}
+
+	public Boolean getChemicalsOnIntercrop() {
+		return chemicalsOnIntercrop;
+	}
+
+	public void setChemicalsOnIntercrop(Boolean chemicalsOnIntercrop) {
+		this.chemicalsOnIntercrop = chemicalsOnIntercrop;
+	}
+
+	public Boolean getChemicalsOnNonCoffeeField() {
+		return chemicalsOnNonCoffeeField;
+	}
+
+	public void setChemicalsOnNonCoffeeField(Boolean chemicalsOnNonCoffeeField) {
+		this.chemicalsOnNonCoffeeField = chemicalsOnNonCoffeeField;
+	}
+
+	public Boolean getManure90DaysOrLossBeforeHarvest() {
+		return manure90DaysOrLossBeforeHarvest;
+	}
+
+	public void setManure90DaysOrLossBeforeHarvest(Boolean manure90DaysOrLossBeforeHarvest) {
+		this.manure90DaysOrLossBeforeHarvest = manure90DaysOrLossBeforeHarvest;
+	}
+
+	public Boolean getUnderstandingOfOrganicFTStandards() {
+		return understandingOfOrganicFTStandards;
+	}
+
+	public void setUnderstandingOfOrganicFTStandards(Boolean understandingOfOrganicFTStandards) {
+		this.understandingOfOrganicFTStandards = understandingOfOrganicFTStandards;
+	}
+
+	public Boolean getWeedControlAdequate() {
+		return weedControlAdequate;
+	}
+
+	public void setWeedControlAdequate(Boolean weedControlAdequate) {
+		this.weedControlAdequate = weedControlAdequate;
+	}
+
+	public Quantity getNonCoffeeTreesPlanted() {
+		return nonCoffeeTreesPlanted;
+	}
+
+	public void setNonCoffeeTreesPlanted(Quantity nonCoffeeTreesPlanted) {
+		this.nonCoffeeTreesPlanted = nonCoffeeTreesPlanted;
+	}
+
+	public Boolean getSignsOfErosion() {
+		return signsOfErosion;
+	}
+
+	public void setSignsOfErosion(Boolean signsOfErosion) {
+		this.signsOfErosion = signsOfErosion;
+	}
+
+	public Boolean getErosionControlAdequate() {
+		return erosionControlAdequate;
+	}
+
+	public void setErosionControlAdequate(Boolean erosionControlAdequate) {
+		this.erosionControlAdequate = erosionControlAdequate;
+	}
+
+	public Boolean getBurningOfCropWaste() {
+		return burningOfCropWaste;
+	}
+
+	public void setBurningOfCropWaste(Boolean burningOfCropWaste) {
+		this.burningOfCropWaste = burningOfCropWaste;
+	}
+
+	public Boolean getFarmerHireLabour() {
+		return farmerHireLabour;
+	}
+
+	public void setFarmerHireLabour(Boolean farmerHireLabour) {
+		this.farmerHireLabour = farmerHireLabour;
+	}
+
+	public Boolean getIsLabourFairlyTreated() {
+		return isLabourFairlyTreated;
+	}
+
+	public void setIsLabourFairlyTreated(Boolean isLabourFairlyTreated) {
+		this.isLabourFairlyTreated = isLabourFairlyTreated;
+	}
+
+	public Boolean getIsChildLabourImployed() {
+		return isChildLabourImployed;
+	}
+
+	public void setIsChildLabourImployed(Boolean isChildLabourImployed) {
+		this.isChildLabourImployed = isChildLabourImployed;
+	}
+
+	public Quantity getPlasticDisposal() {
+		return plasticDisposal;
+	}
+
+	public void setPlasticDisposal(Quantity plasticDisposal) {
+		this.plasticDisposal = plasticDisposal;
+	}
+
+	public Boolean getIsOtherWasteDisposalAdequate() {
+		return isOtherWasteDisposalAdequate;
+	}
+
+	public void setIsOtherWasteDisposalAdequate(Boolean isOtherWasteDisposalAdequate) {
+		this.isOtherWasteDisposalAdequate = isOtherWasteDisposalAdequate;
+	}
+
+	public Boolean getIsHHMakingJointDecision() {
+		return isHHMakingJointDecision;
+	}
+
+	public void setIsHHMakingJointDecision(Boolean isHHMakingJointDecision) {
+		this.isHHMakingJointDecision = isHHMakingJointDecision;
+	}
+
+	public Boolean getIsHHTakingFarmingAsFamilyBusiness() {
+		return isHHTakingFarmingAsFamilyBusiness;
+	}
+
+	public void setIsHHTakingFarmingAsFamilyBusiness(Boolean isHHTakingFarmingAsFamilyBusiness) {
+		this.isHHTakingFarmingAsFamilyBusiness = isHHTakingFarmingAsFamilyBusiness;
+	}
+
+	public String getComments() {
+		return comments;
+	}
+
+	public void setComments(String comments) {
+		this.comments = comments;
+	}
+
+	public Set<FarmPlot> getFarms() {
+		return farms;
+	}
+
+	public void setFarms(Set<FarmPlot> farms) {
+		this.farms = farms;
+	}
+
+	public Integer getNumberOfCoffeeFields() {
+		return numberOfCoffeeFields;
+	}
+
+	public void setNumberOfCoffeeFields(Integer numberOfCoffeeFields) {
+		this.numberOfCoffeeFields = numberOfCoffeeFields;
+	}
+
+	public Double getAreaUnderCoffee() {
+		return areaUnderCoffee;
+	}
+
+	public void setAreaUnderCoffee(Double areaUnderCoffee) {
+		this.areaUnderCoffee = areaUnderCoffee;
+	}
+
+	public Long getProductiveTrees() {
+		return productiveTrees;
+	}
+
+	public void setProductiveTrees(Long productiveTrees) {
+		this.productiveTrees = productiveTrees;
+	}
+
+	public Double getTotalAreaOfFarm() {
+		return totalAreaOfFarm;
+	}
+
+	public void setTotalAreaOfFarm(Double totalAreaOfFarm) {
+		this.totalAreaOfFarm = totalAreaOfFarm;
+	}
+
+	public Boolean getKnownToHarvestRipeCherries() {
+		return knownToHarvestRipeCherries;
+	}
+
+	public void setKnownToHarvestRipeCherries(Boolean knownToHarvestRipeCherries) {
+		this.knownToHarvestRipeCherries = knownToHarvestRipeCherries;
+	}
+
+	public Boolean getPracticesPostHarvestHandlling() {
+		return practicesPostHarvestHandlling;
+	}
+
+	public void setPracticesPostHarvestHandlling(Boolean practicesPostHarvestHandlling) {
+		this.practicesPostHarvestHandlling = practicesPostHarvestHandlling;
+	}
+
+	public Boolean getHasLiveStock() {
+		return hasLiveStock;
+	}
+
+	public void setHasLiveStock(Boolean hasLiveStock) {
+		this.hasLiveStock = hasLiveStock;
+	}
+
+	public Boolean getChemicalTreatmentOnLivestock() {
+		return chemicalTreatmentOnLivestock;
+	}
+
+	public void setChemicalTreatmentOnLivestock(Boolean chemicalTreatmentOnLivestock) {
+		this.chemicalTreatmentOnLivestock = chemicalTreatmentOnLivestock;
+	}
+
+	public Boolean getLivestockTreatmentConducted5mFromCoffee() {
+		return livestockTreatmentConducted5mFromCoffee;
+	}
+
+	public void setLivestockTreatmentConducted5mFromCoffee(Boolean livestockTreatmentConducted5mFromCoffee) {
+		this.livestockTreatmentConducted5mFromCoffee = livestockTreatmentConducted5mFromCoffee;
+	}
+
+	public Set<Animal> getAnimals() {
+		return animals;
+	}
+
+	public void setAnimals(Set<Animal> animals) {
+		this.animals = animals;
+	}
+
+	public Decision getHasFarmerImplementedPreviousAdvice() {
+		return hasFarmerImplementedPreviousAdvice;
+	}
+
+	public void setHasFarmerImplementedPreviousAdvice(Decision hasFarmerImplementedPreviousAdvice) {
+		this.hasFarmerImplementedPreviousAdvice = hasFarmerImplementedPreviousAdvice;
+	}
+
+	public Set<Advice> getAdvices() {
+		return advices;
+	}
+
+	public void setAdvices(Set<Advice> advices) {
+		this.advices = advices;
+	}
+
+	public Boolean getMadeSeriousViolation() {
+		return madeSeriousViolation;
+	}
+
+	public void setMadeSeriousViolation(Boolean madeSeriousViolation) {
+		this.madeSeriousViolation = madeSeriousViolation;
+	}
+
+	public Timestamp getViolationDate() {
+		return violationDate;
+	}
+
+	public void setViolationDate(Timestamp violationDate) {
+		this.violationDate = violationDate;
+	}
+
+	public Boolean getIsRecommendedOrganicCertificatation() {
+		return isRecommendedOrganicCertificatation;
+	}
+
+	public void setIsRecommendedOrganicCertificatation(Boolean isRecommendedOrganicCertificatation) {
+		this.isRecommendedOrganicCertificatation = isRecommendedOrganicCertificatation;
+	}
+
+	public Boolean getBoardAGMMinutesKept() {
+		return boardAGMMinutesKept;
+	}
+
+	public void setBoardAGMMinutesKept(Boolean boardAGMMinutesKept) {
+		this.boardAGMMinutesKept = boardAGMMinutesKept;
+	}
+
+	public Boolean getMembershipListsAndSharesUpdated() {
+		return membershipListsAndSharesUpdated;
+	}
+
+	public void setMembershipListsAndSharesUpdated(Boolean membershipListsAndSharesUpdated) {
+		this.membershipListsAndSharesUpdated = membershipListsAndSharesUpdated;
+	}
+
+	public Boolean getIsAnnualBudgetAndAuditedAccounts() {
+		return isAnnualBudgetAndAuditedAccounts;
+	}
+
+	public void setIsAnnualBudgetAndAuditedAccounts(Boolean isAnnualBudgetAndAuditedAccounts) {
+		this.isAnnualBudgetAndAuditedAccounts = isAnnualBudgetAndAuditedAccounts;
+	}
+
+	public Boolean getIsFairTradePremiumBudgetAndWorkplan() {
+		return isFairTradePremiumBudgetAndWorkplan;
+	}
+
+	public void setIsFairTradePremiumBudgetAndWorkplan(Boolean isFairTradePremiumBudgetAndWorkplan) {
+		this.isFairTradePremiumBudgetAndWorkplan = isFairTradePremiumBudgetAndWorkplan;
+	}
+
+	public Boolean getIsEnvirnmentCommitteAndItsWorkplan() {
+		return isEnvirnmentCommitteAndItsWorkplan;
+	}
+
+	public void setIsEnvirnmentCommitteAndItsWorkplan(Boolean isEnvirnmentCommitteAndItsWorkplan) {
+		this.isEnvirnmentCommitteAndItsWorkplan = isEnvirnmentCommitteAndItsWorkplan;
+	}
+
+	public Boolean getIsFTContractPersonAppointed() {
+		return isFTContractPersonAppointed;
+	}
+
+	public void setIsFTContractPersonAppointed(Boolean isFTContractPersonAppointed) {
+		this.isFTContractPersonAppointed = isFTContractPersonAppointed;
+	}
+
+	public Signature getFarmer() {
+		return farmer;
+	}
+
+	public void setFarmer(Signature farmer) {
+		this.farmer = farmer;
+	}
+
+	public Signature getFieldCoordinator() {
+		return fieldCoordinator;
+	}
+
+	public void setFieldCoordinator(Signature fieldCoordinator) {
+		this.fieldCoordinator = fieldCoordinator;
+	}
+
+	public Signature getIcsManager() {
+		return icsManager;
+	}
+
+	public void setIcsManager(Signature icsManager) {
+		this.icsManager = icsManager;
+	}
+
+	public Signature getChairPerson() {
+		return chairPerson;
+	}
+
+	public void setChairPerson(Signature chairPerson) {
+		this.chairPerson = chairPerson;
+	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
+	}
 }

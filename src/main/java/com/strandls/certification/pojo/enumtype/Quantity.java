@@ -4,16 +4,16 @@ import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlEnumValue;
 import javax.xml.bind.annotation.XmlType;
 
-@XmlType(name = "quality")
+@XmlType(name = "quantity")
 @XmlEnum
 public enum Quantity {
 
-	@XmlEnumValue("GOOD")
-	GOOD("GOOD"),
-	@XmlEnumValue("FAIR")
-	FAIR("FAIR"),
-	@XmlEnumValue("POOR")
-	POOR("POOR");
+	@XmlEnumValue("MANY")
+	MANY("MANY"),
+	@XmlEnumValue("FEW")
+	FEW("FEW"),
+	@XmlEnumValue("NONE")
+	NONE("NONE");
 	
 	private String value;
 	

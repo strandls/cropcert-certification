@@ -9,6 +9,7 @@ import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
@@ -28,15 +29,21 @@ import io.swagger.annotations.ApiResponses;
  * @author vilay
  *
  */
-@Path(ApiConstants.CERTIFICATION)
-@Api("Certification")
-public interface CertificationController {
+@Path(ApiConstants.INSPECTION)
+@Api("Inspection")
+public interface InspectionController {
 
 	@GET
 	@Path(ApiConstants.PING)
 	@Produces(MediaType.TEXT_PLAIN)
 	public Response ping();
 
+	@Path("{id}")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Get all the inspection report", response = Inspection.class, responseContainer = "List")
+	public Response findById(@Context HttpServletRequest request, @PathParam("id") Long id);
+	
 	@Path("all")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
@@ -45,7 +52,6 @@ public interface CertificationController {
 			@DefaultValue("-1") @QueryParam("offset") Integer offset);
 	
 	@POST
-	@Path("inspection")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Add inspection report", notes = "Returns succuess failure", response = Inspection.class)

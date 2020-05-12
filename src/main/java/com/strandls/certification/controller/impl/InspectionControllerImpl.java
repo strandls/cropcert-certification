@@ -8,11 +8,11 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import com.google.inject.Inject;
-import com.strandls.certification.controller.CertificationController;
+import com.strandls.certification.controller.InspectionController;
 import com.strandls.certification.pojo.Inspection;
 import com.strandls.certification.service.InspectionService;
 
-public class CertificationControllerImpl implements CertificationController{
+public class InspectionControllerImpl implements InspectionController{
 
 	@Inject
 	private InspectionService inspectionService;
@@ -22,6 +22,17 @@ public class CertificationControllerImpl implements CertificationController{
 		return Response.status(Status.OK).entity("PONG").build();
 	}
 
+	@Override
+	public Response findById(HttpServletRequest request, Long id) {
+		try {
+			Inspection inspection = inspectionService.findById(id);
+			return Response.ok().entity(inspection).build();
+		} catch (Exception e) {
+			throw new WebApplicationException(
+					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
+		}
+	}
+	
 	@Override
 	public Response findAll(HttpServletRequest request, Integer limit, Integer offset) {
 		try {

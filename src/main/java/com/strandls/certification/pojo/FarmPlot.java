@@ -8,6 +8,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -17,14 +19,11 @@ import com.strandls.certification.pojo.enumtype.FieldSeparationType;
 import com.strandls.certification.pojo.enumtype.Quality;
 
 import io.swagger.annotations.ApiModel;
-import lombok.Getter;
-import lombok.Setter;
 
 @Entity
 @Table(name = "farm_plot")
 @XmlRootElement
 @JsonIgnoreProperties
-@Getter@Setter
 @ApiModel("FarmPlot")
 public class FarmPlot implements Serializable{
 
@@ -73,4 +72,194 @@ public class FarmPlot implements Serializable{
 	private FieldSeparationType fieldSeparation;
 	@Column(name = "multiple_owner_with_organic")
 	private Boolean multipleOwnerWithOrganic;
+	@ManyToOne
+	@JoinColumn(name = "inspection_id")
+	private Inspection inspection;
+
+	public FarmPlot() {
+		super();
+	}
+
+	public FarmPlot(Long id, String fieldName, Double acres, String mainCrop, String intercrops,
+			Long numberOfCoffeTrees, Double yeildEstimate, Double areaUnderCoffee, Boolean isCoffeeTreeWellMaintained,
+			Quality pruining, Long numberOfPruinedCoffeeTrees, Quality stumping, Long numberOfStumpedTree,
+			Boolean plantingNewCoffeeSeedings, Timestamp lastUseOfNonAllowedChemicals, Boolean interPlotBufferZones,
+			FieldSeparationType fieldSeparation, Boolean multipleOwnerWithOrganic, Inspection inspection) {
+		super();
+		this.id = id;
+		this.fieldName = fieldName;
+		this.acres = acres;
+		this.mainCrop = mainCrop;
+		this.intercrops = intercrops;
+		this.numberOfCoffeTrees = numberOfCoffeTrees;
+		this.yeildEstimate = yeildEstimate;
+		this.areaUnderCoffee = areaUnderCoffee;
+		this.isCoffeeTreeWellMaintained = isCoffeeTreeWellMaintained;
+		this.pruining = pruining;
+		this.numberOfPruinedCoffeeTrees = numberOfPruinedCoffeeTrees;
+		this.stumping = stumping;
+		this.numberOfStumpedTree = numberOfStumpedTree;
+		this.plantingNewCoffeeSeedings = plantingNewCoffeeSeedings;
+		this.lastUseOfNonAllowedChemicals = lastUseOfNonAllowedChemicals;
+		this.interPlotBufferZones = interPlotBufferZones;
+		this.fieldSeparation = fieldSeparation;
+		this.multipleOwnerWithOrganic = multipleOwnerWithOrganic;
+		this.inspection = inspection;
+	}
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getFieldName() {
+		return fieldName;
+	}
+
+	public void setFieldName(String fieldName) {
+		this.fieldName = fieldName;
+	}
+
+	public Double getAcres() {
+		return acres;
+	}
+
+	public void setAcres(Double acres) {
+		this.acres = acres;
+	}
+
+	public String getMainCrop() {
+		return mainCrop;
+	}
+
+	public void setMainCrop(String mainCrop) {
+		this.mainCrop = mainCrop;
+	}
+
+	public String getIntercrops() {
+		return intercrops;
+	}
+
+	public void setIntercrops(String intercrops) {
+		this.intercrops = intercrops;
+	}
+
+	public Long getNumberOfCoffeTrees() {
+		return numberOfCoffeTrees;
+	}
+
+	public void setNumberOfCoffeTrees(Long numberOfCoffeTrees) {
+		this.numberOfCoffeTrees = numberOfCoffeTrees;
+	}
+
+	public Double getYeildEstimate() {
+		return yeildEstimate;
+	}
+
+	public void setYeildEstimate(Double yeildEstimate) {
+		this.yeildEstimate = yeildEstimate;
+	}
+
+	public Double getAreaUnderCoffee() {
+		return areaUnderCoffee;
+	}
+
+	public void setAreaUnderCoffee(Double areaUnderCoffee) {
+		this.areaUnderCoffee = areaUnderCoffee;
+	}
+
+	public Boolean getIsCoffeeTreeWellMaintained() {
+		return isCoffeeTreeWellMaintained;
+	}
+
+	public void setIsCoffeeTreeWellMaintained(Boolean isCoffeeTreeWellMaintained) {
+		this.isCoffeeTreeWellMaintained = isCoffeeTreeWellMaintained;
+	}
+
+	public Quality getPruining() {
+		return pruining;
+	}
+
+	public void setPruining(Quality pruining) {
+		this.pruining = pruining;
+	}
+
+	public Long getNumberOfPruinedCoffeeTrees() {
+		return numberOfPruinedCoffeeTrees;
+	}
+
+	public void setNumberOfPruinedCoffeeTrees(Long numberOfPruinedCoffeeTrees) {
+		this.numberOfPruinedCoffeeTrees = numberOfPruinedCoffeeTrees;
+	}
+
+	public Quality getStumping() {
+		return stumping;
+	}
+
+	public void setStumping(Quality stumping) {
+		this.stumping = stumping;
+	}
+
+	public Long getNumberOfStumpedTree() {
+		return numberOfStumpedTree;
+	}
+
+	public void setNumberOfStumpedTree(Long numberOfStumpedTree) {
+		this.numberOfStumpedTree = numberOfStumpedTree;
+	}
+
+	public Boolean getPlantingNewCoffeeSeedings() {
+		return plantingNewCoffeeSeedings;
+	}
+
+	public void setPlantingNewCoffeeSeedings(Boolean plantingNewCoffeeSeedings) {
+		this.plantingNewCoffeeSeedings = plantingNewCoffeeSeedings;
+	}
+
+	public Timestamp getLastUseOfNonAllowedChemicals() {
+		return lastUseOfNonAllowedChemicals;
+	}
+
+	public void setLastUseOfNonAllowedChemicals(Timestamp lastUseOfNonAllowedChemicals) {
+		this.lastUseOfNonAllowedChemicals = lastUseOfNonAllowedChemicals;
+	}
+
+	public Boolean getInterPlotBufferZones() {
+		return interPlotBufferZones;
+	}
+
+	public void setInterPlotBufferZones(Boolean interPlotBufferZones) {
+		this.interPlotBufferZones = interPlotBufferZones;
+	}
+
+	public FieldSeparationType getFieldSeparation() {
+		return fieldSeparation;
+	}
+
+	public void setFieldSeparation(FieldSeparationType fieldSeparation) {
+		this.fieldSeparation = fieldSeparation;
+	}
+
+	public Boolean getMultipleOwnerWithOrganic() {
+		return multipleOwnerWithOrganic;
+	}
+
+	public void setMultipleOwnerWithOrganic(Boolean multipleOwnerWithOrganic) {
+		this.multipleOwnerWithOrganic = multipleOwnerWithOrganic;
+	}
+
+	public Inspection getInspection() {
+		return inspection;
+	}
+
+	public void setInspection(Inspection inspection) {
+		this.inspection = inspection;
+	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
+	}
 }

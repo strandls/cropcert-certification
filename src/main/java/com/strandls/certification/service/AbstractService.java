@@ -66,6 +66,7 @@ public abstract class  AbstractService<T> {
 	
 	public List<T> findAll(int limit, int offset) {
 		try {
+			if(limit == -1 || offset == -1) return findAll();
 			List<T> entities = this.dao.findAll(limit, offset);
 			return entities;
 		} catch (RuntimeException re) {

@@ -15,14 +15,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import io.swagger.annotations.ApiModel;
-import lombok.Getter;
-import lombok.Setter;
 
 @Entity
 @Table(name = "signature")
 @XmlRootElement
 @JsonIgnoreProperties
-@Getter@Setter
 @ApiModel("Signature")
 public class Signature implements Serializable{
 
@@ -45,4 +42,61 @@ public class Signature implements Serializable{
 	private Boolean done;
 	@Column(name = "path")
 	private String path;
+	
+	public Signature() {
+		super();
+	}
+
+	public Signature(Long id, String name, Timestamp date, Boolean done, String path) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.date = date;
+		this.done = done;
+		this.path = path;
+	}
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public Timestamp getDate() {
+		return date;
+	}
+
+	public void setDate(Timestamp date) {
+		this.date = date;
+	}
+
+	public Boolean getDone() {
+		return done;
+	}
+
+	public void setDone(Boolean done) {
+		this.done = done;
+	}
+
+	public String getPath() {
+		return path;
+	}
+
+	public void setPath(String path) {
+		this.path = path;
+	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
+	}
 }
