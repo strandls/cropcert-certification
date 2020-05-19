@@ -17,9 +17,13 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import com.strandls.certification.ApiConstants;
+import com.strandls.certification.filter.Permissions;
+import com.strandls.certification.filter.TokenAndUserAuthenticated;
 import com.strandls.certification.pojo.Inspection;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -57,5 +61,8 @@ public interface InspectionController {
 	@ApiOperation(value = "Add inspection report", notes = "Returns succuess failure", response = Inspection.class)
 	@ApiResponses(value = { @ApiResponse(code = 400, message = "Could not add inspection report", response = String.class),
 			@ApiResponse(code = 500, message = "ERROR", response = String.class) })
+	@ApiImplicitParams({
+		@ApiImplicitParam(name = "Authorization", value = "Authorization token", required = true, dataType = "string", paramType = "header") })
+	@TokenAndUserAuthenticated(permissions = {Permissions.INSPECTOR})
 	public Response addInspection(@Context HttpServletRequest request, String jsonString);
 }

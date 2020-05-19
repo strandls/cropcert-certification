@@ -4,11 +4,14 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import com.google.inject.Inject;
 import com.strandls.certification.controller.InspectionController;
+import com.strandls.certification.filter.Permissions;
+import com.strandls.certification.filter.TokenAndUserAuthenticated;
 import com.strandls.certification.pojo.Inspection;
 import com.strandls.certification.service.InspectionService;
 
@@ -23,7 +26,7 @@ public class InspectionControllerImpl implements InspectionController{
 	}
 
 	@Override
-	public Response findById(HttpServletRequest request, Long id) {
+	public Response findById(@Context HttpServletRequest request, Long id) {
 		try {
 			Inspection inspection = inspectionService.findById(id);
 			return Response.ok().entity(inspection).build();
@@ -34,7 +37,7 @@ public class InspectionControllerImpl implements InspectionController{
 	}
 	
 	@Override
-	public Response findAll(HttpServletRequest request, Integer limit, Integer offset) {
+	public Response findAll(@Context HttpServletRequest request, Integer limit, Integer offset) {
 		try {
 			List<Inspection> inspections = inspectionService.findAll(request, limit, offset);
 			return Response.ok().entity(inspections).build();
@@ -45,7 +48,8 @@ public class InspectionControllerImpl implements InspectionController{
 	}
 	
 	@Override
-	public Response addInspection(HttpServletRequest request, String jsonString) {
+	@TokenAndUserAuthenticated(permissions = {Permissions.INSPECTOR})
+	public Response addInspection(@Context HttpServletRequest request, String jsonString) {
 		try {
 			Inspection inspection = inspectionService.save(request, jsonString);
 			return Response.ok().entity(inspection).build();
