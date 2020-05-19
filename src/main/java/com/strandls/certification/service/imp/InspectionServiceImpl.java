@@ -14,16 +14,19 @@ import com.strandls.certification.pojo.Inspection;
 import com.strandls.certification.service.AbstractService;
 import com.strandls.certification.service.InspectionService;
 
-public class InspectionServiceImpl extends AbstractService<Inspection> implements InspectionService{
+public class InspectionServiceImpl extends AbstractService<Inspection> implements InspectionService {
 
 	@Inject
 	private ObjectMapper objectMapper;
-	
+
+	@Inject
+	private InspectionDao inspectorDao;
+
 	@Inject
 	public InspectionServiceImpl(InspectionDao dao) {
 		super(dao);
 	}
-	
+
 	@Override
 	public Inspection findById(Long id) {
 		Inspection inspection = super.findById(id);
@@ -36,10 +39,17 @@ public class InspectionServiceImpl extends AbstractService<Inspection> implement
 	}
 
 	@Override
-	public Inspection save(HttpServletRequest request, String jsonString) throws JsonParseException, JsonMappingException, IOException {
+	public Inspection save(HttpServletRequest request, String jsonString)
+			throws JsonParseException, JsonMappingException, IOException {
 		Inspection inspection = objectMapper.readValue(jsonString, Inspection.class);
 		inspection = save(inspection);
 		return inspection;
+	}
+
+	@Override
+	public List<Inspection> getReportsForInspector(HttpServletRequest request, Integer limit, Integer offset,
+			Long inspectorId, Long farmerId) {
+		return inspectorDao.getReportsForInspector(limit, offset, inspectorId, farmerId);
 	}
 
 }

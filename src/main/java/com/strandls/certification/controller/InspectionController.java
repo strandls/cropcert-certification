@@ -47,22 +47,25 @@ public interface InspectionController {
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Get all the inspection report", response = Inspection.class, responseContainer = "List")
 	public Response findById(@Context HttpServletRequest request, @PathParam("id") Long id);
-	
-	@Path("all")
+
+	@Path("all/{inspectorId}/{farmerId}")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Get all the inspection report", response = Inspection.class, responseContainer = "List")
 	public Response findAll(@Context HttpServletRequest request, @DefaultValue("-1") @QueryParam("limit") Integer limit,
-			@DefaultValue("-1") @QueryParam("offset") Integer offset);
-	
+			@DefaultValue("-1") @QueryParam("offset") Integer offset,
+			@DefaultValue("-1") @QueryParam("inspectorId") Long inspectorId,
+			@DefaultValue("-1") @QueryParam("farmerId") Long farmerId);
+
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Add inspection report", notes = "Returns succuess failure", response = Inspection.class)
-	@ApiResponses(value = { @ApiResponse(code = 400, message = "Could not add inspection report", response = String.class),
+	@ApiResponses(value = {
+			@ApiResponse(code = 400, message = "Could not add inspection report", response = String.class),
 			@ApiResponse(code = 500, message = "ERROR", response = String.class) })
 	@ApiImplicitParams({
-		@ApiImplicitParam(name = "Authorization", value = "Authorization token", required = true, dataType = "string", paramType = "header") })
-	@TokenAndUserAuthenticated(permissions = {Permissions.INSPECTOR})
+			@ApiImplicitParam(name = "Authorization", value = "Authorization token", required = true, dataType = "string", paramType = "header") })
+	@TokenAndUserAuthenticated(permissions = { Permissions.INSPECTOR })
 	public Response addInspection(@Context HttpServletRequest request, String jsonString);
 }

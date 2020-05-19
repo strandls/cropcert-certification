@@ -15,13 +15,13 @@ import com.strandls.certification.filter.TokenAndUserAuthenticated;
 import com.strandls.certification.pojo.Inspection;
 import com.strandls.certification.service.InspectionService;
 
-public class InspectionControllerImpl implements InspectionController{
+public class InspectionControllerImpl implements InspectionController {
 
 	@Inject
 	private InspectionService inspectionService;
-	
+
 	@Override
-	public Response ping()  {
+	public Response ping() {
 		return Response.status(Status.OK).entity("PONG").build();
 	}
 
@@ -35,20 +35,25 @@ public class InspectionControllerImpl implements InspectionController{
 					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
 		}
 	}
-	
+
 	@Override
-	public Response findAll(@Context HttpServletRequest request, Integer limit, Integer offset) {
+	public Response findAll(@Context HttpServletRequest request, Integer limit, Integer offset, Long inspectorId,
+			Long farmerId) {
 		try {
-			List<Inspection> inspections = inspectionService.findAll(request, limit, offset);
+			List<Inspection> inspections;
+			if (inspectorId == -1)
+				inspections = inspectionService.findAll(request, limit, offset);
+			else
+				inspections = inspectionService.getReportsForInspector(request, limit, offset, inspectorId, farmerId);
 			return Response.ok().entity(inspections).build();
 		} catch (Exception e) {
 			throw new WebApplicationException(
 					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
 		}
 	}
-	
+
 	@Override
-	@TokenAndUserAuthenticated(permissions = {Permissions.INSPECTOR})
+	@TokenAndUserAuthenticated(permissions = { Permissions.INSPECTOR })
 	public Response addInspection(@Context HttpServletRequest request, String jsonString) {
 		try {
 			Inspection inspection = inspectionService.save(request, jsonString);

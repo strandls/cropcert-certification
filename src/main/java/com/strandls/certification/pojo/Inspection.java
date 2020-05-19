@@ -33,32 +33,35 @@ import io.swagger.annotations.ApiModel;
 @XmlRootElement
 @JsonIgnoreProperties
 @ApiModel("Inspection")
-public class Inspection implements Serializable{
+public class Inspection implements Serializable {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -5497916199514044930L;
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "inspection_id_generator")
 	@SequenceGenerator(name = "inspection_id_generator", sequenceName = "inspection_id_seq", allocationSize = 1)
 	@Column(name = "id", updatable = false, nullable = false)
 	private Long id;
-	
+
+	@Column(name = "inspector_id", nullable = false)
+	private Long inspectorId;
+
 	@ManyToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name = "farmer_inspection")
-	private FarmerDetails farmerInspection;
-	
+	@JoinColumn(name = "farmer_details")
+	private FarmerDetails farmerDetails;
+
 	@Column(name = "date")
 	private Timestamp date;
-	
-	// Verification 
+
+	// Verification
 	@Column(name = "verification_date")
 	private Timestamp verificationDate;
 	@Column(name = "farmer_contract")
 	private Timestamp farmerContract;
-	
+
 	// General information
 	@Column(name = "last_used_chemicals")
 	private Timestamp lastUsedChemicals;
@@ -97,11 +100,11 @@ public class Inspection implements Serializable{
 	private Boolean isHHTakingFarmingAsFamilyBusiness;
 	@Column(name = "comments")
 	private String comments;
-	
+
 	// Farm list for the farmer;
 	@OneToMany(mappedBy = "inspection", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	private Set<FarmPlot> farms = new HashSet<FarmPlot>();
-	
+
 	// Summary column
 	@Column(name = "number_of_coffee_fields")
 	private Integer numberOfCoffeeFields;
@@ -116,8 +119,7 @@ public class Inspection implements Serializable{
 	private Boolean knownToHarvestRipeCherries;
 	@Column(name = "practices_post_harvest_handlling")
 	private Boolean practicesPostHarvestHandlling;
-	
-	
+
 	// Animals
 	@Column(name = "has_live_stock")
 	private Boolean hasLiveStock;
@@ -127,12 +129,12 @@ public class Inspection implements Serializable{
 	private Boolean livestockTreatmentConducted5mFromCoffee;
 	@OneToMany(mappedBy = "inspection", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	private Set<Animal> animals = new HashSet<Animal>();
-	
+
 	// Recommendation;
 	@Column(name = "has_farmer_implemented_previous_advice")
 	@Enumerated(EnumType.STRING)
 	private Decision hasFarmerImplementedPreviousAdvice;
-	
+
 	@OneToMany(mappedBy = "inspection", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	private Set<Advice> advices = new HashSet<Advice>();
 	@Column(name = "made_serious_violation")
@@ -141,7 +143,7 @@ public class Inspection implements Serializable{
 	private Timestamp violationDate;
 	@Column(name = "isRecommended_organic_certificatation")
 	private Boolean isRecommendedOrganicCertificatation;
-	
+
 	@Column(name = "board_agm_minutes_kept")
 	private Boolean boardAGMMinutesKept;
 	@Column(name = "membership_lists_and_shares_updated")
@@ -172,9 +174,9 @@ public class Inspection implements Serializable{
 		super();
 	}
 
-	public Inspection(Long id, FarmerDetails farmerInspection, Timestamp date, Timestamp verificationDate,
-			Timestamp farmerContract, Timestamp lastUsedChemicals, Boolean chemicalsOnIntercrop,
-			Boolean chemicalsOnNonCoffeeField, Boolean manure90DaysOrLossBeforeHarvest,
+	public Inspection(Long id, Long inspectorId, FarmerDetails farmerDetails, Timestamp date,
+			Timestamp verificationDate, Timestamp farmerContract, Timestamp lastUsedChemicals,
+			Boolean chemicalsOnIntercrop, Boolean chemicalsOnNonCoffeeField, Boolean manure90DaysOrLossBeforeHarvest,
 			Boolean understandingOfOrganicFTStandards, Boolean weedControlAdequate, Quantity nonCoffeeTreesPlanted,
 			Boolean signsOfErosion, Boolean erosionControlAdequate, Boolean burningOfCropWaste,
 			Boolean farmerHireLabour, Boolean isLabourFairlyTreated, Boolean isChildLabourImployed,
@@ -191,7 +193,8 @@ public class Inspection implements Serializable{
 			Signature chairPerson) {
 		super();
 		this.id = id;
-		this.farmerInspection = farmerInspection;
+		this.inspectorId = inspectorId;
+		this.farmerDetails = farmerDetails;
 		this.date = date;
 		this.verificationDate = verificationDate;
 		this.farmerContract = farmerContract;
@@ -249,12 +252,20 @@ public class Inspection implements Serializable{
 		this.id = id;
 	}
 
-	public FarmerDetails getFarmerInspection() {
-		return farmerInspection;
+	public Long getInspectorId() {
+		return inspectorId;
 	}
 
-	public void setFarmerInspection(FarmerDetails farmerInspection) {
-		this.farmerInspection = farmerInspection;
+	public void setInspectorId(Long inspectorId) {
+		this.inspectorId = inspectorId;
+	}
+
+	public FarmerDetails getFarmerDetails() {
+		return farmerDetails;
+	}
+
+	public void setFarmerDetails(FarmerDetails farmerDetails) {
+		this.farmerDetails = farmerDetails;
 	}
 
 	public Timestamp getDate() {
