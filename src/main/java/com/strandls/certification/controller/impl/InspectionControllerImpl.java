@@ -37,14 +37,14 @@ public class InspectionControllerImpl implements InspectionController {
 	}
 
 	@Override
-	public Response findAll(@Context HttpServletRequest request, Integer limit, Integer offset, Long inspectorId,
+	public Response findAllByCCCode(@Context HttpServletRequest request, Integer limit, Integer offset, Long ccCode,
 			Long farmerId) {
 		try {
 			List<Inspection> inspections;
-			if (inspectorId == -1)
+			if (ccCode == -1)
 				inspections = inspectionService.findAll(request, limit, offset);
 			else
-				inspections = inspectionService.getReportsForInspector(request, limit, offset, inspectorId, farmerId);
+				inspections = inspectionService.getReportsForCollectionCenter(request, limit, offset, ccCode, farmerId);
 			return Response.ok().entity(inspections).build();
 		} catch (Exception e) {
 			throw new WebApplicationException(

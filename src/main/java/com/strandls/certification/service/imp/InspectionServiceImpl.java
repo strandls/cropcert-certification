@@ -1,6 +1,7 @@
 package com.strandls.certification.service.imp;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -14,6 +15,10 @@ import com.strandls.certification.pojo.Inspection;
 import com.strandls.certification.service.AbstractService;
 import com.strandls.certification.service.InspectionService;
 
+import cropcert.user.ApiException;
+import cropcert.user.api.FarmerApi;
+import cropcert.user.model.Farmer;
+
 public class InspectionServiceImpl extends AbstractService<Inspection> implements InspectionService {
 
 	@Inject
@@ -21,6 +26,9 @@ public class InspectionServiceImpl extends AbstractService<Inspection> implement
 
 	@Inject
 	private InspectionDao inspectorDao;
+
+	@Inject
+	private FarmerApi farmerApi;
 
 	@Inject
 	public InspectionServiceImpl(InspectionDao dao) {
@@ -50,6 +58,27 @@ public class InspectionServiceImpl extends AbstractService<Inspection> implement
 	public List<Inspection> getReportsForInspector(HttpServletRequest request, Integer limit, Integer offset,
 			Long inspectorId, Long farmerId) {
 		return inspectorDao.getReportsForInspector(limit, offset, inspectorId, farmerId);
+	}
+
+	@Override
+	public List<Inspection> getReportsForCollectionCenter(HttpServletRequest request, Integer limit, Integer offset,
+			Long ccCode, Long farmerId) {
+		List<Farmer> farmers = new ArrayList<Farmer>();
+		try {
+			farmers = farmerApi.getFarmerForCollectionCenter(ccCode, limit, offset);
+		} catch (ApiException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		List<Long> farmerIds = new ArrayList<Long>();
+		if (farmerId != -1)
+			farmerIds.add(farmerId);
+		else
+			for (Farmer farmer : farmers) {
+				farmerIds.add(farmer.getId());
+			}
+
+		return inspectorDao.getReportsForCollectionCenter(limit, offset, ccCode, farmerIds);
 	}
 
 }

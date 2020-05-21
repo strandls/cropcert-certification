@@ -7,6 +7,7 @@ import javax.persistence.NoResultException;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.query.Query;
 
 import com.google.inject.Inject;
 import com.strandls.certification.pojo.Inspection;
@@ -32,20 +33,9 @@ public class InspectionDao extends AbstractDao<Inspection, Long> {
 		return entity;
 	}
 
-	public List<Inspection> getReportsForInspector(Integer limit, Integer offset, Long inspectorId, Long farmerId) {
-
-		String queryStr = "from " + daoType.getSimpleName() + " t "
-				+ "where t.inspectorId =  :inspectorId and t.farmerDetails.id = :farmerId order by id";
-		/*
-		 * String queryStr = "" + "from " + daoType.getSimpleName() + " t " + "where t."
-		 * + property + " " + condition + " :value" + " order by id";
-		 */
+	public List<Inspection> getResultSet(Integer limit, Integer offset, Query query) {
 
 		Session session = sessionFactory.openSession();
-		org.hibernate.query.Query query = session.createQuery(queryStr);
-		query.setParameter("inspectorId", inspectorId);
-		query.setParameter("farmerId", farmerId);
-
 		List<Inspection> resultList = new ArrayList<Inspection>();
 		try {
 			if (limit > 0 && offset >= 0)
@@ -57,5 +47,37 @@ public class InspectionDao extends AbstractDao<Inspection, Long> {
 		}
 		session.close();
 		return resultList;
+
+	}
+
+	public List<Inspection> getReportsForInspector(Integer limit, Integer offset, Long inspectorId, Long farmerId) {
+
+		String queryStr = "from " + daoType.getSimpleName() + " t where "
+				+ (inspectorId == -1 ? "" : "t.inspectorId =  :inspectorId and ") + 
+				(farmerId == -1 ? "" : "t.farmerId = :farmerId ")
+				+ "order by id";
+
+		Session session = sessionFactory.openSession();
+		org.hibernate.query.Query query = session.createQuery(queryStr);
+		if (inspectorId == -1)
+			query.setParameter("inspectorId", inspectorId);
+		if (farmerId == -1)
+			query.setParameter("farmerId", farmerId);
+
+		return getResultSet(limit, offset, query);
+	}
+
+	public List<Inspection> getReportsForCollectionCenter(Integer limit, Integer offset, Long ccCode, List<Long> farmerIds) {
+
+		
+		
+		String queryStr = "from " + daoType.getSimpleName() + " t where farmerId in :farmerIds "
+				+ "order by id";
+
+		Session session = sessionFactory.openSession();
+		org.hibernate.query.Query query = session.createQuery(queryStr);
+		query.setParameterList("farmerIds", farmerIds);
+
+		return getResultSet(limit, offset, query);
 	}
 }

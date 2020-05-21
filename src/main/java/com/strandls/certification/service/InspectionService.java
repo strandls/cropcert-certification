@@ -18,5 +18,8 @@ public interface InspectionService {
 	public Inspection findById(Long id);
 
 	public List<Inspection> getReportsForInspector(HttpServletRequest request, Integer limit, Integer offset, Long inspectorId, Long farmerId);
+
+	public List<Inspection> getReportsForCollectionCenter(HttpServletRequest request, Integer limit, Integer offset,
+			Long ccCode, Long farmerId);
 	
 }

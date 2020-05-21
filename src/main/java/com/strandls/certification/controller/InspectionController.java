@@ -48,13 +48,14 @@ public interface InspectionController {
 	@ApiOperation(value = "Get all the inspection report", response = Inspection.class, responseContainer = "List")
 	public Response findById(@Context HttpServletRequest request, @PathParam("id") Long id);
 
-	@Path("all/{inspectorId}/{farmerId}")
+	@Path("all/{ccCode}/{farmerId}")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Get all the inspection report", response = Inspection.class, responseContainer = "List")
-	public Response findAll(@Context HttpServletRequest request, @DefaultValue("-1") @QueryParam("limit") Integer limit,
+	public Response findAllByCCCode(@Context HttpServletRequest request,
+			@DefaultValue("-1") @QueryParam("limit") Integer limit,
 			@DefaultValue("-1") @QueryParam("offset") Integer offset,
-			@DefaultValue("-1") @QueryParam("inspectorId") Long inspectorId,
+			@DefaultValue("-1") @QueryParam("ccCode") Long ccCode,
 			@DefaultValue("-1") @QueryParam("farmerId") Long farmerId);
 
 	@POST

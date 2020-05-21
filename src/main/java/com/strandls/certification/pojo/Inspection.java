@@ -15,7 +15,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
@@ -49,9 +48,8 @@ public class Inspection implements Serializable {
 	@Column(name = "inspector_id", nullable = false)
 	private Long inspectorId;
 
-	@ManyToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name = "farmer_details")
-	private FarmerDetails farmerDetails;
+	@Column(name = "farmer_id")
+	private Long farmerId;
 
 	@Column(name = "date")
 	private Timestamp date;
@@ -174,9 +172,9 @@ public class Inspection implements Serializable {
 		super();
 	}
 
-	public Inspection(Long id, Long inspectorId, FarmerDetails farmerDetails, Timestamp date,
-			Timestamp verificationDate, Timestamp farmerContract, Timestamp lastUsedChemicals,
-			Boolean chemicalsOnIntercrop, Boolean chemicalsOnNonCoffeeField, Boolean manure90DaysOrLossBeforeHarvest,
+	public Inspection(Long id, Long inspectorId, Long farmerId, Timestamp date, Timestamp verificationDate,
+			Timestamp farmerContract, Timestamp lastUsedChemicals, Boolean chemicalsOnIntercrop,
+			Boolean chemicalsOnNonCoffeeField, Boolean manure90DaysOrLossBeforeHarvest,
 			Boolean understandingOfOrganicFTStandards, Boolean weedControlAdequate, Quantity nonCoffeeTreesPlanted,
 			Boolean signsOfErosion, Boolean erosionControlAdequate, Boolean burningOfCropWaste,
 			Boolean farmerHireLabour, Boolean isLabourFairlyTreated, Boolean isChildLabourImployed,
@@ -194,7 +192,7 @@ public class Inspection implements Serializable {
 		super();
 		this.id = id;
 		this.inspectorId = inspectorId;
-		this.farmerDetails = farmerDetails;
+		this.farmerId = farmerId;
 		this.date = date;
 		this.verificationDate = verificationDate;
 		this.farmerContract = farmerContract;
@@ -260,12 +258,12 @@ public class Inspection implements Serializable {
 		this.inspectorId = inspectorId;
 	}
 
-	public FarmerDetails getFarmerDetails() {
-		return farmerDetails;
+	public Long getFarmerId() {
+		return farmerId;
 	}
 
-	public void setFarmerDetails(FarmerDetails farmerDetails) {
-		this.farmerDetails = farmerDetails;
+	public void setFarmerId(Long farmerId) {
+		this.farmerId = farmerId;
 	}
 
 	public Timestamp getDate() {
