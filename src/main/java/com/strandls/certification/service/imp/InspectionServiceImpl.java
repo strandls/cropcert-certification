@@ -2,7 +2,9 @@ package com.strandls.certification.service.imp;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -12,6 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import com.strandls.certification.dao.InspectionDao;
 import com.strandls.certification.pojo.Inspection;
+import com.strandls.certification.pojo.response.FarmersLastReport;
 import com.strandls.certification.service.AbstractService;
 import com.strandls.certification.service.InspectionService;
 
@@ -61,24 +64,42 @@ public class InspectionServiceImpl extends AbstractService<Inspection> implement
 	}
 
 	@Override
-	public List<Inspection> getReportsForCollectionCenter(HttpServletRequest request, Integer limit, Integer offset,
-			Long ccCode, Long farmerId) {
+	public Map<Long, FarmersLastReport> getReportsForCollectionCenter(HttpServletRequest request, Integer limit,
+			Integer offset, Long ccCode, Long farmerId) {
+
+		Map<Long, FarmersLastReport> reports = new HashMap<Long, FarmersLastReport>();
+
 		List<Farmer> farmers = new ArrayList<Farmer>();
 		try {
-			farmers = farmerApi.getFarmerForCollectionCenter(ccCode, limit, offset);
+			if (ccCode == -1) {
+				farmers = farmerApi.findAll(limit, offset);
+			} else if (farmerId != -1) {
+				Farmer farmer = farmerApi.find(farmerId);
+				farmers.add(farmer);
+			} else {
+				farmers = farmerApi.getFarmerForCollectionCenter(ccCode, limit, offset);
+			}
 		} catch (ApiException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		List<Long> farmerIds = new ArrayList<Long>();
-		if (farmerId != -1)
-			farmerIds.add(farmerId);
-		else
-			for (Farmer farmer : farmers) {
-				farmerIds.add(farmer.getId());
-			}
 
-		return inspectorDao.getReportsForCollectionCenter(limit, offset, ccCode, farmerIds);
+		List<Long> farmerIds = new ArrayList<Long>();
+		for (Farmer farmer : farmers) {
+			Long id = farmer.getId();
+			farmerIds.add(id);
+			FarmersLastReport farmersLastReport = new FarmersLastReport(id, farmer, null);
+			reports.put(id, farmersLastReport);
+		}
+
+		List<Inspection> inspections = inspectorDao.getReportsForCollectionCenter(limit, offset, ccCode, farmerIds);
+
+		for (Inspection inspection : inspections) {
+			Long id = inspection.getFarmerId();
+			FarmersLastReport farmersLastReport = reports.get(id);
+			farmersLastReport.setInspection(inspection);
+		}
+
+		return reports;
 	}
 
 }
