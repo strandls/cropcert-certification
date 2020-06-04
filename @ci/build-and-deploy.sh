@@ -13,4 +13,4 @@ echo "📦 Building package"
 /opt/apache-maven/bin/mvn clean package
 
 echo "🚀 Uploading to tomcat"
-curl --upload-file target/traceability.war http://$SERVER_1/manager/text/deploy?path=/traceability&update=true
+curl --upload-file target/certification.war http://$SERVER_1/manager/text/deploy?path=/certification&update=true
