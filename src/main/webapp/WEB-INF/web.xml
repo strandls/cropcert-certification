@@ -9,7 +9,7 @@
 		<welcome-file>index.json</welcome-file>
 	</welcome-file-list>
 	<listener>
-		<listener-class>com.strandls.certification.CertificationServeletContextListener</listener-class>
+		<listener-class>cropcert.certification.CertificationServeletContextListener</listener-class>
 	</listener>
 	<filter>
 		<filter-name>GuiceFilter</filter-name>

@@ -30,7 +30,7 @@
 		<war-name>certification</war-name>
 		<srcDir>src/main/webapp</srcDir>
 		<base-path>/certification/api</base-path>
-		<location>com.strandls.certification</location>
+		<location>cropcert.certification</location>
 	</properties>
 
 	<distributionManagement>
