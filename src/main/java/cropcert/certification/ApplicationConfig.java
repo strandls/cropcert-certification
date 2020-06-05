@@ -66,7 +66,7 @@ public class ApplicationConfig extends Application {
 		Set<Class<?>> resource = new HashSet<Class<?>>();
 
 		try {
-			List<Class<?>> swaggerClass = getSwaggerAnnotationClassesFromPackage("com");
+			List<Class<?>> swaggerClass = getSwaggerAnnotationClassesFromPackage("cropcert");
 			resource.addAll(swaggerClass);
 		} catch (ClassNotFoundException | URISyntaxException | IOException e) {
 			logger.error(e.getMessage());

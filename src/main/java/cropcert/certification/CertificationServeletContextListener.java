@@ -56,7 +56,7 @@ public class CertificationServeletContextListener extends GuiceServletContextLis
 				Configuration configuration = new Configuration();
 
 				try {
-					for (Class<?> cls : getEntityClassesFromPackage("com")) {
+					for (Class<?> cls : getEntityClassesFromPackage("cropcert")) {
 						configuration.addAnnotatedClass(cls);
 					}
 				} catch (ClassNotFoundException | IOException | URISyntaxException e) {
