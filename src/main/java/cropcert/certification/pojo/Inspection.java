@@ -67,6 +67,8 @@ public class Inspection implements Serializable {
 	private Boolean chemicalsOnIntercrop;
 	@Column(name = "chemicals_on_non_coffee_field")
 	private Boolean chemicalsOnNonCoffeeField;
+	@Column(name = "cutivatation_not_conducted_within_5m_water_source")
+	private Boolean cutivatationNotConductedWithin5mWaterSource;
 	@Column(name = "manure_90_days_or_loss_before_harvest")
 	private Boolean manure90DaysOrLossBeforeHarvest;
 	@Column(name = "understanding_of_organic_ft_standards")
@@ -312,6 +314,14 @@ public class Inspection implements Serializable {
 
 	public void setChemicalsOnNonCoffeeField(Boolean chemicalsOnNonCoffeeField) {
 		this.chemicalsOnNonCoffeeField = chemicalsOnNonCoffeeField;
+	}
+	
+	public Boolean getCutivatationNotConductedWithin5mWaterSource() {
+		return cutivatationNotConductedWithin5mWaterSource;
+	}
+	
+	public void setCutivatationNotConductedWithin5mWaterSource(Boolean cutivatationNotConductedWithin5mWaterSource) {
+		this.cutivatationNotConductedWithin5mWaterSource = cutivatationNotConductedWithin5mWaterSource;
 	}
 
 	public Boolean getManure90DaysOrLossBeforeHarvest() {
