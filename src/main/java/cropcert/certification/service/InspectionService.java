@@ -1,15 +1,16 @@
 package cropcert.certification.service;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+
 import cropcert.certification.pojo.Inspection;
-import cropcert.certification.pojo.response.FarmersLastReport;
+import cropcert.certification.pojo.response.FarmersInspectionReport;
 
 public interface InspectionService {
 	
@@ -21,7 +22,7 @@ public interface InspectionService {
 
 	public List<Inspection> getReportsForInspector(HttpServletRequest request, Integer limit, Integer offset, Long inspectorId, Long farmerId);
 
-	public Map<Long, FarmersLastReport> getReportsForCollectionCenter(HttpServletRequest request, Integer limit, Integer offset,
+	public Collection<FarmersInspectionReport> getReportsForCollectionCenter(HttpServletRequest request, Integer limit, Integer offset,
 			Long ccCode, Long farmerId);
 	
 }

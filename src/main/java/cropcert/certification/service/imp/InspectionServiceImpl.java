@@ -2,6 +2,7 @@ package cropcert.certification.service.imp;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,7 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import cropcert.certification.dao.InspectionDao;
 import cropcert.certification.pojo.Inspection;
-import cropcert.certification.pojo.response.FarmersLastReport;
+import cropcert.certification.pojo.response.FarmersInspectionReport;
 import cropcert.certification.service.AbstractService;
 import cropcert.certification.service.InspectionService;
 
@@ -64,18 +65,18 @@ public class InspectionServiceImpl extends AbstractService<Inspection> implement
 	}
 
 	@Override
-	public Map<Long, FarmersLastReport> getReportsForCollectionCenter(HttpServletRequest request, Integer limit,
+	public Collection<FarmersInspectionReport> getReportsForCollectionCenter(HttpServletRequest request, Integer limit,
 			Integer offset, Long ccCode, Long farmerId) {
 
-		Map<Long, FarmersLastReport> reports = new HashMap<Long, FarmersLastReport>();
+		Map<Long, FarmersInspectionReport> reports = new HashMap<Long, FarmersInspectionReport>();
 
 		List<Farmer> farmers = new ArrayList<Farmer>();
 		try {
-			if (ccCode == -1) {
-				farmers = farmerApi.findAll(limit, offset);
-			} else if (farmerId != -1) {
+			if (farmerId != -1) {
 				Farmer farmer = farmerApi.find(farmerId);
 				farmers.add(farmer);
+			} else if (ccCode == -1) {
+				farmers = farmerApi.findAll(limit, offset);
 			} else {
 				farmers = farmerApi.getFarmerForCollectionCenter(ccCode, limit, offset);
 			}
@@ -87,7 +88,7 @@ public class InspectionServiceImpl extends AbstractService<Inspection> implement
 		for (Farmer farmer : farmers) {
 			Long id = farmer.getId();
 			farmerIds.add(id);
-			FarmersLastReport farmersLastReport = new FarmersLastReport(id, farmer, null);
+			FarmersInspectionReport farmersLastReport = new FarmersInspectionReport(farmer, null);
 			reports.put(id, farmersLastReport);
 		}
 
@@ -95,11 +96,11 @@ public class InspectionServiceImpl extends AbstractService<Inspection> implement
 
 		for (Inspection inspection : inspections) {
 			Long id = inspection.getFarmerId();
-			FarmersLastReport farmersLastReport = reports.get(id);
+			FarmersInspectionReport farmersLastReport = reports.get(id);
 			farmersLastReport.setInspection(inspection);
 		}
 
-		return reports;
+		return reports.values();
 	}
 
 }

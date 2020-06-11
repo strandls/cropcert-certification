@@ -48,7 +48,7 @@ public interface InspectionController {
 	@ApiOperation(value = "Get all the inspection report", response = Inspection.class, responseContainer = "List")
 	public Response findById(@Context HttpServletRequest request, @PathParam("id") Long id);
 
-	@Path("all/{ccCode}/{farmerId}")
+	@Path("all/{ccCode}")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Get all the inspection report", response = Inspection.class, responseContainer = "List")
