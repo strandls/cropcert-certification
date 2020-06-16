@@ -11,18 +11,26 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 
 import cropcert.certification.pojo.Inspection;
 import cropcert.certification.pojo.response.FarmersInspectionReport;
+import cropcert.user.ApiException;
 
 public interface InspectionService {
-	
+
 	public List<Inspection> findAll(HttpServletRequest request, Integer limit, Integer offset);
 
-	public Inspection save(HttpServletRequest request, String jsonString) throws JsonParseException, JsonMappingException, IOException;
+	public Inspection save(HttpServletRequest request, String jsonString)
+			throws JsonParseException, JsonMappingException, IOException;
 
 	public Inspection findById(Long id);
 
-	public List<Inspection> getReportsForInspector(HttpServletRequest request, Integer limit, Integer offset, Long inspectorId, Long farmerId);
+	public List<Inspection> getReportsForInspector(HttpServletRequest request, Integer limit, Integer offset,
+			Long inspectorId, Long farmerId);
 
-	public Collection<FarmersInspectionReport> getReportsForCollectionCenter(HttpServletRequest request, Integer limit, Integer offset,
-			Long ccCode, Long farmerId);
-	
+	public Collection<FarmersInspectionReport> getReportsForCollectionCenter(HttpServletRequest request, Integer limit,
+			Integer offset, Long ccCode);
+
+	public FarmersInspectionReport getLatestFarmerReport(HttpServletRequest request, Long farmerId) throws ApiException;
+
+	public List<FarmersInspectionReport> getAllFarmerReport(HttpServletRequest request, Long farmerId)
+			throws ApiException;
+
 }

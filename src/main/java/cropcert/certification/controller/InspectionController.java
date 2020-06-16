@@ -37,25 +37,33 @@ import io.swagger.annotations.ApiResponses;
 @Api("Inspection")
 public interface InspectionController {
 
-	@GET
-	@Path(ApiConstants.PING)
-	@Produces(MediaType.TEXT_PLAIN)
-	public Response ping();
-
 	@Path("{id}")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value = "Get all the inspection report", response = Inspection.class, responseContainer = "List")
+	@ApiOperation(value = "Get Inspection report by Id", response = Inspection.class, responseContainer = "List")
 	public Response findById(@Context HttpServletRequest request, @PathParam("id") Long id);
 
-	@Path("all/{ccCode}")
+	@Path("all/ccCode")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value = "Get all the inspection report", response = Inspection.class, responseContainer = "List")
-	public Response findAllByCCCode(@Context HttpServletRequest request,
+	@ApiOperation(value = "Get all the inspection report from collection center given by ccCode", response = Inspection.class, responseContainer = "List")
+	public Response getAllByCCCode(@Context HttpServletRequest request,
 			@DefaultValue("-1") @QueryParam("limit") Integer limit,
 			@DefaultValue("-1") @QueryParam("offset") Integer offset,
-			@DefaultValue("-1") @QueryParam("ccCode") Long ccCode,
+			@DefaultValue("-1") @QueryParam("ccCode") Long ccCode);
+
+	@Path("farmer/latest")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Get latest report of the farmer", response = Inspection.class, responseContainer = "List")
+	public Response getLatestFarmerReport(@Context HttpServletRequest request,
+			@DefaultValue("-1") @QueryParam("farmerId") Long farmerId);
+
+	@Path("farmer/all")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Get all the inspection report of a single farmer", response = Inspection.class, responseContainer = "List")
+	public Response findAllFarmerReport(@Context HttpServletRequest request,
 			@DefaultValue("-1") @QueryParam("farmerId") Long farmerId);
 
 	@POST

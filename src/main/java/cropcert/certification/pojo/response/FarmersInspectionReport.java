@@ -37,7 +37,9 @@ public class FarmersInspectionReport {
 		this.userName = farmer.getUserName();
 		this.firstName = farmer.getFirstName();
 		this.lastName = farmer.getLastName();
-		// this.dateOfBirth = farmer.getDateOfBirth();
+		this.dateOfBirth = null;
+		if(farmer.getDateOfBirth() != null)
+			this.dateOfBirth = new Timestamp(farmer.getDateOfBirth().getTime());
 		this.gender = farmer.getGender();
 		this.cellNumber = farmer.getCellNumber();
 		this.email = farmer.getEmail();
@@ -51,6 +53,7 @@ public class FarmersInspectionReport {
 		this.farmerCode = farmer.getFarmerCode();
 		this.ccCode = farmer.getCcCode();
 		this.fieldCoOrdinator = farmer.getFieldCoOrdinator();
+		this.inspection = inspection;
 	}
 
 	public FarmersInspectionReport(Long id, String userName, String firstName, String lastName, Timestamp dateOfBirth,

@@ -10,6 +10,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
 
 import com.google.inject.Inject;
+
 import cropcert.certification.pojo.Inspection;
 
 public class InspectionDao extends AbstractDao<Inspection, Long> {
@@ -66,8 +67,7 @@ public class InspectionDao extends AbstractDao<Inspection, Long> {
 		return getResultSet(limit, offset, query);
 	}
 
-	public List<Inspection> getReportsForCollectionCenter(Integer limit, Integer offset, Long ccCode,
-			List<Long> farmerIds) {
+	public List<Inspection> getReportsForCollectionCenter(Integer limit, Integer offset, List<Long> farmerIds) {
 
 		String farmerIdsString = "(";
 		for (Long farmerId : farmerIds) {
@@ -76,8 +76,8 @@ public class InspectionDao extends AbstractDao<Inspection, Long> {
 		farmerIdsString += "-1)";
 
 		String queryStr = "select * from " + daoType.getSimpleName() + " t "
-				+ (farmerIds == null || farmerIds.size() == 0 ? "" : "where farmer_id in " + farmerIdsString)
-				+ " and date = (select max(date) from inspection i where i.farmer_id = t.farmer_id)";
+				+ " where farmer_id in " + farmerIdsString + " and "
+				+ " date = (select max(date) from inspection i where i.farmer_id = t.farmer_id)";
 
 		Session session = sessionFactory.openSession();
 		org.hibernate.query.Query query = session.createNativeQuery(queryStr, Inspection.class);

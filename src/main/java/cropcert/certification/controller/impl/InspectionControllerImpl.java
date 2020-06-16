@@ -1,12 +1,12 @@
 package cropcert.certification.controller.impl;
 
 import java.util.Collection;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 
 import com.google.inject.Inject;
 
@@ -23,11 +23,6 @@ public class InspectionControllerImpl implements InspectionController {
 	private InspectionService inspectionService;
 
 	@Override
-	public Response ping() {
-		return Response.status(Status.OK).entity("PONG").build();
-	}
-
-	@Override
 	public Response findById(@Context HttpServletRequest request, Long id) {
 		try {
 			Inspection inspection = inspectionService.findById(id);
@@ -39,10 +34,31 @@ public class InspectionControllerImpl implements InspectionController {
 	}
 
 	@Override
-	public Response findAllByCCCode(@Context HttpServletRequest request, Integer limit, Integer offset, Long ccCode,
-			Long farmerId) {
+	public Response getAllByCCCode(HttpServletRequest request, Integer limit, Integer offset, Long ccCode) {
 		try {
-			Collection<FarmersInspectionReport> reports = inspectionService.getReportsForCollectionCenter(request, limit, offset, ccCode, farmerId);
+			Collection<FarmersInspectionReport> reports = inspectionService.getReportsForCollectionCenter(request, limit, offset, ccCode);
+			return Response.ok().entity(reports).build();
+		} catch (Exception e) {
+			throw new WebApplicationException(
+					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
+		}
+	}
+	
+	@Override
+	public Response getLatestFarmerReport(HttpServletRequest request, Long farmerId) {
+		try {
+			FarmersInspectionReport reports = inspectionService.getLatestFarmerReport(request, farmerId);
+			return Response.ok().entity(reports).build();
+		} catch (Exception e) {
+			throw new WebApplicationException(
+					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
+		}
+	}
+	
+	@Override
+	public Response findAllFarmerReport(HttpServletRequest request, Long farmerId) {
+		try {
+			List<FarmersInspectionReport> reports = inspectionService.getAllFarmerReport(request, farmerId);
 			return Response.ok().entity(reports).build();
 		} catch (Exception e) {
 			throw new WebApplicationException(
@@ -61,4 +77,5 @@ public class InspectionControllerImpl implements InspectionController {
 					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
 		}
 	}
+
 }

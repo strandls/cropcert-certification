@@ -13,12 +13,12 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
+
 import cropcert.certification.dao.InspectionDao;
 import cropcert.certification.pojo.Inspection;
 import cropcert.certification.pojo.response.FarmersInspectionReport;
 import cropcert.certification.service.AbstractService;
 import cropcert.certification.service.InspectionService;
-
 import cropcert.user.ApiException;
 import cropcert.user.api.FarmerApi;
 import cropcert.user.model.Farmer;
@@ -66,19 +66,16 @@ public class InspectionServiceImpl extends AbstractService<Inspection> implement
 
 	@Override
 	public Collection<FarmersInspectionReport> getReportsForCollectionCenter(HttpServletRequest request, Integer limit,
-			Integer offset, Long ccCode, Long farmerId) {
+			Integer offset, Long ccCode) {
 
 		Map<Long, FarmersInspectionReport> reports = new HashMap<Long, FarmersInspectionReport>();
 
 		List<Farmer> farmers = new ArrayList<Farmer>();
 		try {
-			if (farmerId != -1) {
-				Farmer farmer = farmerApi.find(farmerId);
-				farmers.add(farmer);
-			} else if (ccCode == -1) {
-				farmers = farmerApi.findAll(limit, offset);
-			} else {
+			if (ccCode != -1) {
 				farmers = farmerApi.getFarmerForCollectionCenter(ccCode, limit, offset);
+			} else {
+				farmers = farmerApi.findAll(limit, offset);
 			}
 		} catch (ApiException e) {
 			e.printStackTrace();
@@ -92,7 +89,7 @@ public class InspectionServiceImpl extends AbstractService<Inspection> implement
 			reports.put(id, farmersLastReport);
 		}
 
-		List<Inspection> inspections = inspectorDao.getReportsForCollectionCenter(limit, offset, ccCode, farmerIds);
+		List<Inspection> inspections = inspectorDao.getReportsForCollectionCenter(limit, offset, farmerIds);
 
 		for (Inspection inspection : inspections) {
 			Long id = inspection.getFarmerId();
@@ -101,6 +98,38 @@ public class InspectionServiceImpl extends AbstractService<Inspection> implement
 		}
 
 		return reports.values();
+	}
+
+	@Override
+	public FarmersInspectionReport getLatestFarmerReport(HttpServletRequest request, Long farmerId)
+			throws ApiException {
+		Farmer farmer = farmerApi.find(farmerId);
+		List<Inspection> inspections = inspectorDao.getByPropertyWithCondtion("farmerId", farmer.getId(), "=", -1, -1);
+		if (inspections == null || inspections.size() == 0)
+			return new FarmersInspectionReport(farmer, null);
+
+		Inspection latestInspection = inspections.get(0);
+
+		for (int i = 1; i < inspections.size(); i++) {
+			Inspection inspection = inspections.get(i);
+			if (inspection.getDate().after(latestInspection.getDate()))
+				latestInspection = inspection;
+		}
+		return new FarmersInspectionReport(farmer, latestInspection);
+	}
+
+	@Override
+	public List<FarmersInspectionReport> getAllFarmerReport(HttpServletRequest request, Long farmerId)
+			throws ApiException {
+		Farmer farmer = farmerApi.find(farmerId);
+		List<Inspection> inspections = inspectorDao.getByPropertyWithCondtion("farmerId", farmer.getId(), "=", -1, -1);
+
+		List<FarmersInspectionReport> reports = new ArrayList<FarmersInspectionReport>();
+		for (Inspection inspection : inspections) {
+			FarmersInspectionReport report = new FarmersInspectionReport(farmer, inspection);
+			reports.add(report);
+		}
+		return reports;
 	}
 
 }
