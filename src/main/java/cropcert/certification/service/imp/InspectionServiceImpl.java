@@ -1,13 +1,18 @@
 package cropcert.certification.service.imp;
 
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -16,9 +21,12 @@ import com.google.inject.Inject;
 
 import cropcert.certification.dao.InspectionDao;
 import cropcert.certification.pojo.Inspection;
+import cropcert.certification.pojo.Synchronization;
 import cropcert.certification.pojo.response.FarmersInspectionReport;
 import cropcert.certification.service.AbstractService;
 import cropcert.certification.service.InspectionService;
+import cropcert.certification.service.SynchronizationService;
+import cropcert.certification.util.UserUtil;
 import cropcert.user.ApiException;
 import cropcert.user.api.FarmerApi;
 import cropcert.user.model.Farmer;
@@ -33,6 +41,12 @@ public class InspectionServiceImpl extends AbstractService<Inspection> implement
 
 	@Inject
 	private FarmerApi farmerApi;
+
+	@Inject
+	private InspectionService inspectionService;
+
+	@Inject
+	private SynchronizationService synchronizationService;
 
 	@Inject
 	public InspectionServiceImpl(InspectionDao dao) {
@@ -56,6 +70,73 @@ public class InspectionServiceImpl extends AbstractService<Inspection> implement
 		Inspection inspection = objectMapper.readValue(jsonString, Inspection.class);
 		inspection = save(inspection);
 		return inspection;
+	}
+
+	@Override
+	public List<FarmersInspectionReport> bulkUpload(HttpServletRequest request, String jsonString)
+			throws JsonParseException, JsonMappingException, IOException, ApiException {
+		JSONArray jsonArray = new JSONArray(jsonString);
+		List<FarmersInspectionReport> farmersInspectionReports = new ArrayList<FarmersInspectionReport>();
+		for (int i = 0; i < jsonArray.length(); i++) {
+			JSONObject jsonObject = jsonArray.getJSONObject(i);
+			Inspection inspection = objectMapper.readValue(jsonObject.toString(), Inspection.class);
+
+			Long farmerId = inspection.getFarmerId();
+			String inspectorIdString = UserUtil.getUserDetails(request).getId();
+			Long inspectorId = Long.parseLong(inspectorIdString);
+
+			FarmersInspectionReport farmersInspectionReport = inspectionService.getLatestFarmerReport(request,
+					farmerId);
+
+			Long updatedBy = inspectorId;
+
+			Integer version;
+			Integer subVersion;
+			Boolean isReportFinalized = false;
+			Timestamp lastUpdated = new Timestamp(new Date().getTime());
+			Boolean saveInspection = true;
+			Boolean addSyncEntry = true;
+			Boolean isDeleted = false;
+
+			if (farmersInspectionReport.getInspection() == null) {
+				version = 1;
+				subVersion = 1;
+			} else {
+				Long inspectionId = farmersInspectionReport.getInspection().getId();
+				List<Synchronization> syncs = synchronizationService.getByPropertyWithCondtion("reportId", inspectionId,
+						"=", -1, -1);
+
+				Synchronization synchronization = syncs.get(0);
+				if (synchronization.getIsReportFinalized()) {
+					version = synchronization.getVersion() + 1;
+					subVersion = 1;
+				} else {
+					Synchronization sync = synchronizationService.getPartialReport(inspectorId, farmerId);
+					if (sync != null) {
+						version = synchronization.getVersion();
+						subVersion = synchronization.getSubVersion();
+						saveInspection = false;
+						addSyncEntry = false;
+					} else {
+						version = synchronization.getVersion();
+						subVersion = synchronization.getSubVersion() + 1;
+					}
+				}
+			}
+
+			if (saveInspection) {
+				inspection = save(inspection);
+			}
+			if (addSyncEntry) {
+				Synchronization synchronization = new Synchronization(null, farmerId, inspection.getId(), version,
+						subVersion, isReportFinalized, lastUpdated, updatedBy, isDeleted);
+				synchronizationService.save(synchronization);
+			}
+
+			farmersInspectionReport.setInspection(inspection);
+			farmersInspectionReports.add(farmersInspectionReport);
+		}
+		return farmersInspectionReports;
 	}
 
 	@Override

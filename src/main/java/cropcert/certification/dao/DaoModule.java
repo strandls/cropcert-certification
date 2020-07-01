@@ -8,5 +8,6 @@ public class DaoModule extends AbstractModule {
 	@Override
 	protected void configure() {
 		bind(InspectionDao.class).in(Scopes.SINGLETON);
+		bind(SynchronizationDao.class).in(Scopes.SINGLETON);
 	}
 }

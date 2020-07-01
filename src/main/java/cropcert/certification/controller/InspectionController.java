@@ -17,10 +17,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import cropcert.certification.ApiConstants;
-import cropcert.certification.filter.Permissions;
-import cropcert.certification.filter.TokenAndUserAuthenticated;
 import cropcert.certification.pojo.Inspection;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -75,6 +72,17 @@ public interface InspectionController {
 			@ApiResponse(code = 500, message = "ERROR", response = String.class) })
 	@ApiImplicitParams({
 			@ApiImplicitParam(name = "Authorization", value = "Authorization token", required = true, dataType = "string", paramType = "header") })
-	@TokenAndUserAuthenticated(permissions = { Permissions.INSPECTOR })
 	public Response addInspection(@Context HttpServletRequest request, String jsonString);
+
+	@POST
+	@Path("bulk")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Add inspection report", notes = "Returns succuess failure", response = Inspection.class, responseContainer = "List")
+	@ApiResponses(value = {
+			@ApiResponse(code = 400, message = "Could not add inspection report", response = String.class),
+			@ApiResponse(code = 500, message = "ERROR", response = String.class) })
+	@ApiImplicitParams({
+			@ApiImplicitParam(name = "Authorization", value = "Authorization token", required = true, dataType = "string", paramType = "header") })
+	public Response bulkUpload(@Context HttpServletRequest request, String jsonString);
 }

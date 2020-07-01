@@ -65,6 +65,18 @@ public class InspectionControllerImpl implements InspectionController {
 					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
 		}
 	}
+	
+	@Override
+	@TokenAndUserAuthenticated(permissions = { Permissions.INSPECTOR })
+	public Response bulkUpload(@Context HttpServletRequest request, String jsonString) {
+		try {
+			List<FarmersInspectionReport> inspection = inspectionService.bulkUpload(request, jsonString);
+			return Response.ok().entity(inspection).build();
+		} catch (Exception e) {
+			throw new WebApplicationException(
+					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
+		}
+	}
 
 	@Override
 	@TokenAndUserAuthenticated(permissions = { Permissions.INSPECTOR })

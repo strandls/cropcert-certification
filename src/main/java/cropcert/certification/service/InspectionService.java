@@ -33,4 +33,7 @@ public interface InspectionService {
 	public List<FarmersInspectionReport> getAllFarmerReport(HttpServletRequest request, Long farmerId)
 			throws ApiException;
 
+	public List<FarmersInspectionReport> bulkUpload(HttpServletRequest request, String jsonString)
+			throws JsonParseException, JsonMappingException, IOException, ApiException;
+
 }
