@@ -1,5 +1,7 @@
 package cropcert.certification.controller.impl;
 
+import java.util.List;
+
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.WebApplicationException;
@@ -15,6 +17,17 @@ public class SynchronizationControllerImpl implements SynchronizationController 
 	private SynchronizationService synchronizationService;
 	
 	@Override
+	public Response getAllByCCCode(HttpServletRequest request, Integer limit, Integer offset, Long ccCode) {
+		try {
+			List<Synchronization> reports = synchronizationService.getSynchronizationForCollectionCenter(request, limit, offset, ccCode);
+			return Response.ok().entity(reports).build();
+		} catch (Exception e) {
+			throw new WebApplicationException(
+					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
+		}
+	}
+	
+	@Override
 	public Response addSyncEntry(HttpServletRequest request, String jsonString) {
 		try {
 			Synchronization synchronization = synchronizationService.save(request, jsonString);
@@ -24,5 +37,4 @@ public class SynchronizationControllerImpl implements SynchronizationController 
 					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
 		}
 	}
-
 }

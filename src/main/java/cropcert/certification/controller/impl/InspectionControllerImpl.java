@@ -58,7 +58,7 @@ public class InspectionControllerImpl implements InspectionController {
 	@Override
 	public Response findAllFarmerReport(HttpServletRequest request, Long farmerId) {
 		try {
-			List<FarmersInspectionReport> reports = inspectionService.getAllFarmerReport(request, farmerId);
+			List<FarmersInspectionReport> reports = inspectionService.getAllReportsOfFarmer(request, farmerId);
 			return Response.ok().entity(reports).build();
 		} catch (Exception e) {
 			throw new WebApplicationException(

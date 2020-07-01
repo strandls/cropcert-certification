@@ -5,9 +5,12 @@ package cropcert.certification.controller;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -16,6 +19,7 @@ import cropcert.certification.ApiConstants;
 import cropcert.certification.filter.Permissions;
 import cropcert.certification.filter.TokenAndUserAuthenticated;
 import cropcert.certification.pojo.Inspection;
+import cropcert.certification.pojo.Synchronization;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -31,6 +35,15 @@ import io.swagger.annotations.ApiResponses;
 @Path(ApiConstants.SYNC)
 @Api("Synchronization")
 public interface SynchronizationController {
+	
+	@Path("all/ccCode")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Get all the synchronization entry for collection center", response = Synchronization.class, responseContainer = "List")
+	public Response getAllByCCCode(@Context HttpServletRequest request,
+			@DefaultValue("-1") @QueryParam("limit") Integer limit,
+			@DefaultValue("-1") @QueryParam("offset") Integer offset,
+			@DefaultValue("-1") @QueryParam("ccCode") Long ccCode);
 
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)

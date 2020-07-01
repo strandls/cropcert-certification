@@ -57,4 +57,32 @@ public class SynchronizationDao extends AbstractDao<Synchronization, Long>{
 		
 		return resultList.get(0);
 	}
+
+	public List<Synchronization> getSynchronizationForCollectionCenter(Integer limit, Integer offset,
+			List<Long> farmerIds) {
+		String farmerIdsString = "(";
+		for (Long farmerId : farmerIds) {
+			farmerIdsString += farmerId + ",";
+		}
+		farmerIdsString += "-1)";
+
+		String queryStr = "select * from " + daoType.getSimpleName() + " t "
+				+ " where farmer_id in " + farmerIdsString + " and "
+				+ " last_updated = (select max(last_updated) from synchronization s where s.farmer_id = t.farmer_id)";
+
+		Session session = sessionFactory.openSession();
+		org.hibernate.query.Query query = session.createNativeQuery(queryStr, Synchronization.class);
+
+		List<Synchronization> resultList = new ArrayList<Synchronization>();
+		try {
+			if (limit > 0 && offset >= 0)
+				query = query.setFirstResult(offset).setMaxResults(limit);
+			resultList = query.getResultList();
+
+		} catch (NoResultException e) {
+			throw e;
+		}
+		session.close();
+		return resultList;
+	}
 }

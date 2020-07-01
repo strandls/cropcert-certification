@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
 import cropcert.certification.pojo.Synchronization;
+import cropcert.user.ApiException;
 
 public interface SynchronizationService {
 
@@ -22,5 +23,6 @@ public interface SynchronizationService {
 	public List<Synchronization> getByPropertyWithCondtion(String property, Object value, String condition, int limit,
 			int offset);
 
-	public Synchronization getPartialReport(Long inspectorId, Long farmerId);
+	public List<Synchronization> getSynchronizationForCollectionCenter(HttpServletRequest request, Integer limit,
+			Integer offset, Long ccCode) throws ApiException;
 }

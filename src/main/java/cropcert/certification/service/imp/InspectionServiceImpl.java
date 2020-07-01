@@ -73,6 +73,20 @@ public class InspectionServiceImpl extends AbstractService<Inspection> implement
 	}
 
 	@Override
+	public List<FarmersInspectionReport> getAllReportsOfFarmer(HttpServletRequest request, Long farmerId)
+			throws ApiException {
+		Farmer farmer = farmerApi.find(farmerId);
+		List<Inspection> inspections = inspectorDao.getByPropertyWithCondtion("farmerId", farmer.getId(), "=", -1, -1);
+		
+		List<FarmersInspectionReport> reports = new ArrayList<FarmersInspectionReport>();
+		for (Inspection inspection : inspections) {
+			FarmersInspectionReport report = new FarmersInspectionReport(farmer, inspection);
+			reports.add(report);
+		}
+		return reports;
+	}
+	
+	@Override
 	public List<FarmersInspectionReport> bulkUpload(HttpServletRequest request, String jsonString)
 			throws JsonParseException, JsonMappingException, IOException, ApiException {
 		JSONArray jsonArray = new JSONArray(jsonString);
@@ -94,14 +108,13 @@ public class InspectionServiceImpl extends AbstractService<Inspection> implement
 			Integer subVersion;
 			Boolean isReportFinalized = false;
 			Timestamp lastUpdated = new Timestamp(new Date().getTime());
-			Boolean saveInspection = true;
-			Boolean addSyncEntry = true;
 			Boolean isDeleted = false;
 
 			if (farmersInspectionReport.getInspection() == null) {
-				version = 1;
+				version = 0;
 				subVersion = 1;
-			} else {
+			} else { // Will definitely have the inspection report otherwise previous condition is
+						// false.
 				Long inspectionId = farmersInspectionReport.getInspection().getId();
 				List<Synchronization> syncs = synchronizationService.getByPropertyWithCondtion("reportId", inspectionId,
 						"=", -1, -1);
@@ -111,27 +124,15 @@ public class InspectionServiceImpl extends AbstractService<Inspection> implement
 					version = synchronization.getVersion() + 1;
 					subVersion = 1;
 				} else {
-					Synchronization sync = synchronizationService.getPartialReport(inspectorId, farmerId);
-					if (sync != null) {
-						version = synchronization.getVersion();
-						subVersion = synchronization.getSubVersion();
-						saveInspection = false;
-						addSyncEntry = false;
-					} else {
-						version = synchronization.getVersion();
-						subVersion = synchronization.getSubVersion() + 1;
-					}
+					version = synchronization.getVersion();
+					subVersion = synchronization.getSubVersion() + 1;
 				}
 			}
 
-			if (saveInspection) {
-				inspection = save(inspection);
-			}
-			if (addSyncEntry) {
-				Synchronization synchronization = new Synchronization(null, farmerId, inspection.getId(), version,
-						subVersion, isReportFinalized, lastUpdated, updatedBy, isDeleted);
-				synchronizationService.save(synchronization);
-			}
+			inspection = save(inspection);
+			Synchronization synchronization = new Synchronization(null, farmerId, inspection.getId(), version,
+					subVersion, isReportFinalized, lastUpdated, updatedBy, isDeleted);
+			synchronizationService.save(synchronization);
 
 			farmersInspectionReport.setInspection(inspection);
 			farmersInspectionReports.add(farmersInspectionReport);
@@ -149,8 +150,6 @@ public class InspectionServiceImpl extends AbstractService<Inspection> implement
 	public Collection<FarmersInspectionReport> getReportsForCollectionCenter(HttpServletRequest request, Integer limit,
 			Integer offset, Long ccCode) {
 
-		Map<Long, FarmersInspectionReport> reports = new HashMap<Long, FarmersInspectionReport>();
-
 		List<Farmer> farmers = new ArrayList<Farmer>();
 		try {
 			if (ccCode != -1) {
@@ -161,7 +160,24 @@ public class InspectionServiceImpl extends AbstractService<Inspection> implement
 		} catch (ApiException e) {
 			e.printStackTrace();
 		}
+		return getLatestReportForFarmers(farmers, limit, offset);
+	}
 
+
+	@Override
+	public FarmersInspectionReport getLatestFarmerReport(HttpServletRequest request, Long farmerId)
+			throws ApiException {
+
+		Farmer farmer = farmerApi.find(farmerId);
+		List<Farmer> farmers = new ArrayList<Farmer>();
+		farmers.add(farmer);
+		Collection<FarmersInspectionReport> reports = getLatestReportForFarmers(farmers, -1, -1);
+		return reports.iterator().next();
+	}
+	
+	private Collection<FarmersInspectionReport> getLatestReportForFarmers(List<Farmer> farmers, Integer limit,
+			Integer offset) {
+		Map<Long, FarmersInspectionReport> reports = new HashMap<Long, FarmersInspectionReport>();
 		List<Long> farmerIds = new ArrayList<Long>();
 		for (Farmer farmer : farmers) {
 			Long id = farmer.getId();
@@ -169,48 +185,15 @@ public class InspectionServiceImpl extends AbstractService<Inspection> implement
 			FarmersInspectionReport farmersLastReport = new FarmersInspectionReport(farmer, null);
 			reports.put(id, farmersLastReport);
 		}
-
-		List<Inspection> inspections = inspectorDao.getReportsForCollectionCenter(limit, offset, farmerIds);
-
+		
+		List<Inspection> inspections = inspectorDao.getLatestReportForFarmers(limit, offset, farmerIds);
+		
 		for (Inspection inspection : inspections) {
 			Long id = inspection.getFarmerId();
 			FarmersInspectionReport farmersLastReport = reports.get(id);
 			farmersLastReport.setInspection(inspection);
 		}
-
+		
 		return reports.values();
 	}
-
-	@Override
-	public FarmersInspectionReport getLatestFarmerReport(HttpServletRequest request, Long farmerId)
-			throws ApiException {
-		Farmer farmer = farmerApi.find(farmerId);
-		List<Inspection> inspections = inspectorDao.getByPropertyWithCondtion("farmerId", farmer.getId(), "=", -1, -1);
-		if (inspections == null || inspections.size() == 0)
-			return new FarmersInspectionReport(farmer, null);
-
-		Inspection latestInspection = inspections.get(0);
-
-		for (int i = 1; i < inspections.size(); i++) {
-			Inspection inspection = inspections.get(i);
-			if (inspection.getDate().after(latestInspection.getDate()))
-				latestInspection = inspection;
-		}
-		return new FarmersInspectionReport(farmer, latestInspection);
-	}
-
-	@Override
-	public List<FarmersInspectionReport> getAllFarmerReport(HttpServletRequest request, Long farmerId)
-			throws ApiException {
-		Farmer farmer = farmerApi.find(farmerId);
-		List<Inspection> inspections = inspectorDao.getByPropertyWithCondtion("farmerId", farmer.getId(), "=", -1, -1);
-
-		List<FarmersInspectionReport> reports = new ArrayList<FarmersInspectionReport>();
-		for (Inspection inspection : inspections) {
-			FarmersInspectionReport report = new FarmersInspectionReport(farmer, inspection);
-			reports.add(report);
-		}
-		return reports;
-	}
-
 }

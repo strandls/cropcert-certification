@@ -67,7 +67,7 @@ public class InspectionDao extends AbstractDao<Inspection, Long> {
 		return getResultSet(limit, offset, query);
 	}
 
-	public List<Inspection> getReportsForCollectionCenter(Integer limit, Integer offset, List<Long> farmerIds) {
+	public List<Inspection> getLatestReportForFarmers(Integer limit, Integer offset, List<Long> farmerIds) {
 
 		String farmerIdsString = "(";
 		for (Long farmerId : farmerIds) {
