@@ -17,8 +17,8 @@ public interface InspectionService {
 
 	public List<Inspection> findAll(HttpServletRequest request, Integer limit, Integer offset);
 
-	public Inspection save(HttpServletRequest request, String jsonString)
-			throws JsonParseException, JsonMappingException, IOException;
+	public FarmersInspectionReport save(HttpServletRequest request, String jsonString)
+			throws JsonParseException, JsonMappingException, IOException, ApiException;
 
 	public Inspection findById(Long id);
 

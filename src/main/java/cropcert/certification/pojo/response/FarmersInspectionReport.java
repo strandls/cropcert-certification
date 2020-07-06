@@ -25,6 +25,8 @@ public class FarmersInspectionReport {
 	private String farmerCode;
 	private Long ccCode;
 	private Long fieldCoOrdinator;
+	private Integer version;
+	private Integer subVersion;
 
 	private Inspection inspection;
 
@@ -32,7 +34,7 @@ public class FarmersInspectionReport {
 		super();
 	}
 
-	public FarmersInspectionReport(Farmer farmer, Inspection inspection) {
+	public FarmersInspectionReport(Farmer farmer, Integer version, Integer subVersion, Inspection inspection) {
 		this.id = farmer.getId();
 		this.userName = farmer.getUserName();
 		this.firstName = farmer.getFirstName();
@@ -53,13 +55,17 @@ public class FarmersInspectionReport {
 		this.farmerCode = farmer.getFarmerCode();
 		this.ccCode = farmer.getCcCode();
 		this.fieldCoOrdinator = farmer.getFieldCoOrdinator();
+		
+		this.version = version;
+		this.subVersion = subVersion;
+		
 		this.inspection = inspection;
 	}
 
 	public FarmersInspectionReport(Long id, String userName, String firstName, String lastName, Timestamp dateOfBirth,
 			String gender, String cellNumber, String email, String village, String subCountry, String membershipId,
 			Integer numCoffeePlots, Integer numCoffeeTrees, Float farmArea, Float coffeeArea, String farmerCode,
-			Long ccCode, Long fieldCoOrdinator, Inspection inspection) {
+			Long ccCode, Long fieldCoOrdinator, Integer version, Integer subVersion, Inspection inspection) {
 		super();
 		this.id = id;
 		this.userName = userName;
@@ -79,6 +85,8 @@ public class FarmersInspectionReport {
 		this.farmerCode = farmerCode;
 		this.ccCode = ccCode;
 		this.fieldCoOrdinator = fieldCoOrdinator;
+		this.version = version;
+		this.subVersion = subVersion;
 		this.inspection = inspection;
 	}
 
@@ -224,6 +232,22 @@ public class FarmersInspectionReport {
 
 	public void setFieldCoOrdinator(Long fieldCoOrdinator) {
 		this.fieldCoOrdinator = fieldCoOrdinator;
+	}
+
+	public Integer getVersion() {
+		return version;
+	}
+
+	public void setVersion(Integer version) {
+		this.version = version;
+	}
+
+	public Integer getSubVersion() {
+		return subVersion;
+	}
+
+	public void setSubVersion(Integer subVersion) {
+		this.subVersion = subVersion;
 	}
 
 	public Inspection getInspection() {

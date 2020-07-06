@@ -65,27 +65,12 @@ public class InspectionServiceImpl extends AbstractService<Inspection> implement
 	}
 
 	@Override
-	public Inspection save(HttpServletRequest request, String jsonString)
-			throws JsonParseException, JsonMappingException, IOException {
-		Inspection inspection = objectMapper.readValue(jsonString, Inspection.class);
-		inspection = save(inspection);
-		return inspection;
+	public FarmersInspectionReport save(HttpServletRequest request, String jsonString)
+			throws JsonParseException, JsonMappingException, IOException, ApiException {
+		jsonString = "[" + jsonString + "]";
+		return bulkUpload(request, jsonString).get(0);
 	}
 
-	@Override
-	public List<FarmersInspectionReport> getAllReportsOfFarmer(HttpServletRequest request, Long farmerId)
-			throws ApiException {
-		Farmer farmer = farmerApi.find(farmerId);
-		List<Inspection> inspections = inspectorDao.getByPropertyWithCondtion("farmerId", farmer.getId(), "=", -1, -1);
-		
-		List<FarmersInspectionReport> reports = new ArrayList<FarmersInspectionReport>();
-		for (Inspection inspection : inspections) {
-			FarmersInspectionReport report = new FarmersInspectionReport(farmer, inspection);
-			reports.add(report);
-		}
-		return reports;
-	}
-	
 	@Override
 	public List<FarmersInspectionReport> bulkUpload(HttpServletRequest request, String jsonString)
 			throws JsonParseException, JsonMappingException, IOException, ApiException {
@@ -141,6 +126,24 @@ public class InspectionServiceImpl extends AbstractService<Inspection> implement
 	}
 
 	@Override
+	public List<FarmersInspectionReport> getAllReportsOfFarmer(HttpServletRequest request, Long farmerId)
+			throws ApiException {
+		Farmer farmer = farmerApi.find(farmerId);
+		List<Inspection> inspections = inspectorDao.getByPropertyWithCondtion("farmerId", farmer.getId(), "=", -1, -1);
+
+		List<FarmersInspectionReport> reports = new ArrayList<FarmersInspectionReport>();
+		for (Inspection inspection : inspections) {
+			Long inspectionId = inspection.getId();
+			Synchronization syncs = synchronizationService.findByPropertyWithCondtion("reportId",
+					inspectionId.toString(), "=");
+			
+			FarmersInspectionReport report = new FarmersInspectionReport(farmer, syncs.getVersion(), syncs.getSubVersion(), inspection);
+			reports.add(report);
+		}
+		return reports;
+	}
+
+	@Override
 	public List<Inspection> getReportsForInspector(HttpServletRequest request, Integer limit, Integer offset,
 			Long inspectorId, Long farmerId) {
 		return inspectorDao.getReportsForInspector(limit, offset, inspectorId, farmerId);
@@ -163,7 +166,6 @@ public class InspectionServiceImpl extends AbstractService<Inspection> implement
 		return getLatestReportForFarmers(farmers, limit, offset);
 	}
 
-
 	@Override
 	public FarmersInspectionReport getLatestFarmerReport(HttpServletRequest request, Long farmerId)
 			throws ApiException {
@@ -174,7 +176,7 @@ public class InspectionServiceImpl extends AbstractService<Inspection> implement
 		Collection<FarmersInspectionReport> reports = getLatestReportForFarmers(farmers, -1, -1);
 		return reports.iterator().next();
 	}
-	
+
 	private Collection<FarmersInspectionReport> getLatestReportForFarmers(List<Farmer> farmers, Integer limit,
 			Integer offset) {
 		Map<Long, FarmersInspectionReport> reports = new HashMap<Long, FarmersInspectionReport>();
@@ -182,18 +184,22 @@ public class InspectionServiceImpl extends AbstractService<Inspection> implement
 		for (Farmer farmer : farmers) {
 			Long id = farmer.getId();
 			farmerIds.add(id);
-			FarmersInspectionReport farmersLastReport = new FarmersInspectionReport(farmer, null);
+			FarmersInspectionReport farmersLastReport = new FarmersInspectionReport(farmer, null, null, null);
 			reports.put(id, farmersLastReport);
 		}
-		
+
 		List<Inspection> inspections = inspectorDao.getLatestReportForFarmers(limit, offset, farmerIds);
-		
+
 		for (Inspection inspection : inspections) {
+			Long inspectionId = inspection.getId();
+			List<Synchronization> syncs = synchronizationService.getByPropertyWithCondtion("reportId", inspectionId, "=", -1, -1);
 			Long id = inspection.getFarmerId();
 			FarmersInspectionReport farmersLastReport = reports.get(id);
 			farmersLastReport.setInspection(inspection);
+			farmersLastReport.setVersion(syncs.get(0).getVersion());
+			farmersLastReport.setSubVersion(syncs.get(0).getSubVersion());
 		}
-		
+
 		return reports.values();
 	}
 }

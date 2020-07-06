@@ -82,8 +82,8 @@ public class InspectionControllerImpl implements InspectionController {
 	@TokenAndUserAuthenticated(permissions = { Permissions.INSPECTOR })
 	public Response addInspection(@Context HttpServletRequest request, String jsonString) {
 		try {
-			Inspection inspection = inspectionService.save(request, jsonString);
-			return Response.ok().entity(inspection).build();
+			FarmersInspectionReport farmersInspectionReport = inspectionService.save(request, jsonString);
+			return Response.ok().entity(farmersInspectionReport).build();
 		} catch (Exception e) {
 			throw new WebApplicationException(
 					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
