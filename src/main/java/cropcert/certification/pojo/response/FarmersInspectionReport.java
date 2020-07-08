@@ -24,6 +24,9 @@ public class FarmersInspectionReport {
 	private Float coffeeArea;
 	private String farmerCode;
 	private Long ccCode;
+	private String ccName;
+	private String coName;
+	private String unionName;
 	private Long fieldCoOrdinator;
 	private Integer version;
 	private Integer subVersion;
@@ -40,7 +43,7 @@ public class FarmersInspectionReport {
 		this.firstName = farmer.getFirstName();
 		this.lastName = farmer.getLastName();
 		this.dateOfBirth = null;
-		if(farmer.getDateOfBirth() != null)
+		if (farmer.getDateOfBirth() != null)
 			this.dateOfBirth = new Timestamp(farmer.getDateOfBirth().getTime());
 		this.gender = farmer.getGender();
 		this.cellNumber = farmer.getCellNumber();
@@ -54,18 +57,22 @@ public class FarmersInspectionReport {
 		this.coffeeArea = farmer.getCoffeeArea();
 		this.farmerCode = farmer.getFarmerCode();
 		this.ccCode = farmer.getCcCode();
+		this.ccName = farmer.getCcName();
+		this.coName = farmer.getCoName();
+		this.unionName = farmer.getUnionName();
 		this.fieldCoOrdinator = farmer.getFieldCoOrdinator();
-		
+
 		this.version = version;
 		this.subVersion = subVersion;
-		
+
 		this.inspection = inspection;
 	}
 
 	public FarmersInspectionReport(Long id, String userName, String firstName, String lastName, Timestamp dateOfBirth,
 			String gender, String cellNumber, String email, String village, String subCountry, String membershipId,
 			Integer numCoffeePlots, Integer numCoffeeTrees, Float farmArea, Float coffeeArea, String farmerCode,
-			Long ccCode, Long fieldCoOrdinator, Integer version, Integer subVersion, Inspection inspection) {
+			Long ccCode, String ccName, String coName, String unionName, Long fieldCoOrdinator, Integer version,
+			Integer subVersion, Inspection inspection) {
 		super();
 		this.id = id;
 		this.userName = userName;
@@ -84,6 +91,9 @@ public class FarmersInspectionReport {
 		this.coffeeArea = coffeeArea;
 		this.farmerCode = farmerCode;
 		this.ccCode = ccCode;
+		this.ccName = ccName;
+		this.coName = coName;
+		this.unionName = unionName;
 		this.fieldCoOrdinator = fieldCoOrdinator;
 		this.version = version;
 		this.subVersion = subVersion;
@@ -224,6 +234,30 @@ public class FarmersInspectionReport {
 
 	public void setCcCode(Long ccCode) {
 		this.ccCode = ccCode;
+	}
+
+	public String getCcName() {
+		return ccName;
+	}
+
+	public void setCcName(String ccName) {
+		this.ccName = ccName;
+	}
+
+	public String getCoName() {
+		return coName;
+	}
+
+	public void setCoName(String coName) {
+		this.coName = coName;
+	}
+
+	public String getUnionName() {
+		return unionName;
+	}
+
+	public void setUnionName(String unionName) {
+		this.unionName = unionName;
 	}
 
 	public Long getFieldCoOrdinator() {
