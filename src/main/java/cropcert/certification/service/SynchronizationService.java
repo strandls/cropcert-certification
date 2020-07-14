@@ -25,4 +25,8 @@ public interface SynchronizationService {
 
 	public List<Synchronization> getSynchronizationForCollectionCenter(HttpServletRequest request, Integer limit,
 			Integer offset, Long ccCode) throws ApiException;
+
+	public Synchronization getReport(HttpServletRequest request, Integer version, Integer subVersion, Long farmerId);
+
+	public List<Synchronization> getRecentSubversionforFarmers(HttpServletRequest request, Integer version, Long farmerId);
 }

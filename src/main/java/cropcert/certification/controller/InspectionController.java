@@ -18,6 +18,7 @@ import javax.ws.rs.core.Response;
 
 import cropcert.certification.ApiConstants;
 import cropcert.certification.pojo.Inspection;
+import cropcert.certification.pojo.response.FarmersInspectionReport;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -78,11 +79,22 @@ public interface InspectionController {
 	@Path("bulk")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value = "Add inspection report", notes = "Returns succuess failure", response = Inspection.class, responseContainer = "List")
+	@ApiOperation(value = "Add inspection report", notes = "Returns succuess failure", response = FarmersInspectionReport.class, responseContainer = "List")
 	@ApiResponses(value = {
 			@ApiResponse(code = 400, message = "Could not add inspection report", response = String.class),
 			@ApiResponse(code = 500, message = "ERROR", response = String.class) })
 	@ApiImplicitParams({
 			@ApiImplicitParam(name = "Authorization", value = "Authorization token", required = true, dataType = "string", paramType = "header") })
 	public Response bulkUpload(@Context HttpServletRequest request, String jsonString);
+
+	@POST
+	@Path("ics/sign")
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Add sign of ICS manager", notes = "Returns succuess failure", response = FarmersInspectionReport.class)
+	@ApiResponses(value = {
+			@ApiResponse(code = 400, message = "Could not add sign of the ics manager", response = String.class),
+			@ApiResponse(code = 500, message = "ERROR", response = String.class) })
+	@ApiImplicitParams({
+			@ApiImplicitParam(name = "Authorization", value = "Authorization token", required = true, dataType = "string", paramType = "header") })
+	public Response signByICSManager(@Context HttpServletRequest request, String jsonString);
 }

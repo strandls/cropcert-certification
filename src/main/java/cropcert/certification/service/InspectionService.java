@@ -36,4 +36,6 @@ public interface InspectionService {
 	public List<FarmersInspectionReport> bulkUpload(HttpServletRequest request, String jsonString)
 			throws JsonParseException, JsonMappingException, IOException, ApiException;
 
+	public FarmersInspectionReport signByICSManager(HttpServletRequest request, String jsonString) throws ApiException;
+
 }

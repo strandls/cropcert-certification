@@ -21,6 +21,7 @@ import com.google.inject.Inject;
 
 import cropcert.certification.dao.InspectionDao;
 import cropcert.certification.pojo.Inspection;
+import cropcert.certification.pojo.Signature;
 import cropcert.certification.pojo.Synchronization;
 import cropcert.certification.pojo.response.FarmersInspectionReport;
 import cropcert.certification.service.AbstractService;
@@ -136,8 +137,9 @@ public class InspectionServiceImpl extends AbstractService<Inspection> implement
 			Long inspectionId = inspection.getId();
 			Synchronization syncs = synchronizationService.findByPropertyWithCondtion("reportId",
 					inspectionId.toString(), "=");
-			
-			FarmersInspectionReport report = new FarmersInspectionReport(farmer, syncs.getVersion(), syncs.getSubVersion(), inspection);
+
+			FarmersInspectionReport report = new FarmersInspectionReport(farmer, syncs.getVersion(),
+					syncs.getSubVersion(), inspection);
 			reports.add(report);
 		}
 		return reports;
@@ -184,7 +186,7 @@ public class InspectionServiceImpl extends AbstractService<Inspection> implement
 		for (Farmer farmer : farmers) {
 			Long id = farmer.getId();
 			farmerIds.add(id);
-			FarmersInspectionReport farmersLastReport = new FarmersInspectionReport(farmer, null, null, null);
+			FarmersInspectionReport farmersLastReport = new FarmersInspectionReport(farmer, 0, 0, null);
 			reports.put(id, farmersLastReport);
 		}
 
@@ -192,7 +194,8 @@ public class InspectionServiceImpl extends AbstractService<Inspection> implement
 
 		for (Inspection inspection : inspections) {
 			Long inspectionId = inspection.getId();
-			List<Synchronization> syncs = synchronizationService.getByPropertyWithCondtion("reportId", inspectionId, "=", -1, -1);
+			List<Synchronization> syncs = synchronizationService.getByPropertyWithCondtion("reportId", inspectionId,
+					"=", -1, -1);
 			Long id = inspection.getFarmerId();
 			FarmersInspectionReport farmersLastReport = reports.get(id);
 			farmersLastReport.setInspection(inspection);
@@ -201,5 +204,37 @@ public class InspectionServiceImpl extends AbstractService<Inspection> implement
 		}
 
 		return reports.values();
+	}
+
+	@Override
+	public FarmersInspectionReport signByICSManager(HttpServletRequest request, String jsonString) throws ApiException {
+		JSONObject jsonObject = new JSONObject(jsonString);
+		Long farmerId = jsonObject.getLong("farmerId");
+		Integer version = jsonObject.getInt("version");
+		Integer subVersion = jsonObject.getInt("subVersion");
+		Long icsManagerId = jsonObject.getLong("icsManagerId");
+		Synchronization synchronization = synchronizationService.getReport(request, version, subVersion, farmerId);
+		Long inspectionId = synchronization.getReportId();
+		Inspection inspection = inspectionService.findById(inspectionId);
+
+		Farmer farmer = farmerApi.find(farmerId);
+
+		// TODO : workflow of the ics Manager.
+		Signature icsManagerSign = inspection.getIcsManager();
+		icsManagerSign.setDone(true);
+		Timestamp date = new Timestamp(new Date().getTime());
+		if(jsonObject.has("date"))
+			date = new Timestamp(jsonObject.getLong("date"));
+		icsManagerSign.setDate(date);
+		if(jsonObject.has("name"))
+			icsManagerSign.setName(jsonObject.getString("name"));
+		if(jsonObject.has("path"))
+			icsManagerSign.setPath(jsonObject.getString("path"));
+		
+		inspection.setIcsManager(icsManagerSign);
+		update(inspection);
+
+		FarmersInspectionReport report = new FarmersInspectionReport(farmer, version, subVersion, inspection);
+		return report;
 	}
 }

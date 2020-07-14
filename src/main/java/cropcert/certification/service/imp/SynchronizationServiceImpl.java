@@ -2,9 +2,7 @@ package cropcert.certification.service.imp;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -14,9 +12,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import cropcert.certification.dao.SynchronizationDao;
-import cropcert.certification.pojo.Inspection;
 import cropcert.certification.pojo.Synchronization;
-import cropcert.certification.pojo.response.FarmersInspectionReport;
 import cropcert.certification.service.AbstractService;
 import cropcert.certification.service.SynchronizationService;
 import cropcert.user.ApiException;
@@ -42,7 +38,6 @@ public class SynchronizationServiceImpl extends AbstractService<Synchronization>
 	@Override
 	public List<Synchronization> getSynchronizationForCollectionCenter(HttpServletRequest request, Integer limit,
 			Integer offset, Long ccCode) throws ApiException {
-		Map<Long, FarmersInspectionReport> reports = new HashMap<Long, FarmersInspectionReport>();
 
 		List<Farmer> farmers = new ArrayList<Farmer>();
 		if (ccCode != -1) {
@@ -68,5 +63,17 @@ public class SynchronizationServiceImpl extends AbstractService<Synchronization>
 		Synchronization synchronization = objectMapper.readValue(jsonString, Synchronization.class);
 		synchronization = save(synchronization);
 		return synchronization;
+	}
+
+	@Override
+	public Synchronization getReport(HttpServletRequest request, Integer version, Integer subVersion, Long farmerId) {
+		Synchronization synchronization = synchronizationDao.getReport(version, subVersion, farmerId);
+		return synchronization;
+	}
+	
+	@Override
+	public List<Synchronization> getRecentSubversionforFarmers(HttpServletRequest request, Integer version, Long farmerId) {
+		List<Synchronization> synchronizations = synchronizationDao.getRecentSubversionEntry(version, farmerId);
+		return synchronizations;
 	}
 }

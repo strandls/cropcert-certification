@@ -56,4 +56,21 @@ public interface SynchronizationController {
 			@ApiImplicitParam(name = "Authorization", value = "Authorization token", required = true, dataType = "string", paramType = "header") })
 	@TokenAndUserAuthenticated(permissions = { Permissions.INSPECTOR })
 	public Response addSyncEntry(@Context HttpServletRequest request, String jsonString);
+	
+	@Path("report")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Get all the synchronization entry for farmer", response = Synchronization.class, responseContainer = "List")
+	public Response getReport(@Context HttpServletRequest request,
+			@DefaultValue("-1") @QueryParam("limit") Integer version,
+			@DefaultValue("-1") @QueryParam("offset") Integer subVersion,
+			@DefaultValue("-1") @QueryParam("farmerId") Long farmerId);
+	
+	@Path("report/recent")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Get all recent subversion entry of the farmer", response = Synchronization.class, responseContainer = "List")
+	public Response getReport(@Context HttpServletRequest request,
+			@DefaultValue("-1") @QueryParam("version") Integer version,
+			@DefaultValue("-1") @QueryParam("farmerId") Long farmerId);
 }

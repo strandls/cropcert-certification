@@ -13,7 +13,7 @@ import com.google.inject.Inject;
 
 import cropcert.certification.pojo.Synchronization;
 
-public class SynchronizationDao extends AbstractDao<Synchronization, Long>{
+public class SynchronizationDao extends AbstractDao<Synchronization, Long> {
 
 	@Inject
 	protected SynchronizationDao(SessionFactory sessionFactory) {
@@ -47,14 +47,15 @@ public class SynchronizationDao extends AbstractDao<Synchronization, Long>{
 
 		List<Synchronization> resultList = new ArrayList<Synchronization>();
 		try {
-				resultList = query.getResultList();
+			resultList = query.getResultList();
 		} catch (NoResultException e) {
 			throw e;
 		}
 		session.close();
-		
-		if(resultList == null || resultList.size() == 0) return null;
-		
+
+		if (resultList == null || resultList.size() == 0)
+			return null;
+
 		return resultList.get(0);
 	}
 
@@ -66,8 +67,8 @@ public class SynchronizationDao extends AbstractDao<Synchronization, Long>{
 		}
 		farmerIdsString += "-1)";
 
-		String queryStr = "select * from " + daoType.getSimpleName() + " t "
-				+ " where farmer_id in " + farmerIdsString + " and "
+		String queryStr = "select * from " + daoType.getSimpleName() + " t " + " where farmer_id in " + farmerIdsString
+				+ " and "
 				+ " last_updated = (select max(last_updated) from synchronization s where s.farmer_id = t.farmer_id)";
 
 		Session session = sessionFactory.openSession();
@@ -77,6 +78,50 @@ public class SynchronizationDao extends AbstractDao<Synchronization, Long>{
 		try {
 			if (limit > 0 && offset >= 0)
 				query = query.setFirstResult(offset).setMaxResults(limit);
+			resultList = query.getResultList();
+
+		} catch (NoResultException e) {
+			throw e;
+		}
+		session.close();
+		return resultList;
+	}
+
+	public Synchronization getReport(Integer version, Integer subVersion, Long farmerId) {
+
+		String queryStr = " from " + daoType.getSimpleName() + " t "
+				+ " where farmerId = :farmerId and version = :version and subVersion = :subVersion";
+
+		Session session = sessionFactory.openSession();
+		Query query = session.createQuery(queryStr, Synchronization.class);
+		query.setParameter("farmerId", farmerId);
+		query.setParameter("version", version);
+		query.setParameter("subVersion", subVersion);
+		try {
+			Synchronization result = (Synchronization) query.getSingleResult();
+			return result;
+		} catch (NoResultException e) {
+			throw e;
+		} finally {
+			session.close();
+		}
+	}
+
+	public List<Synchronization> getRecentSubversionEntry(Integer version, Long farmerId) {
+
+		String queryStr = "select * from " + daoType.getSimpleName() + " t " + " where farmer_id = :farmerId "
+				+ " and  sub_version > 0 and " + " version = "
+				+ (version == -1 ? "(select max(version) from synchronization s where s.farmer_id = t.farmer_id)"
+						: version)
+				+ " order by sub_version";
+
+		Session session = sessionFactory.openSession();
+		org.hibernate.query.Query query = session.createNativeQuery(queryStr, Synchronization.class);
+
+		query.setParameter("farmerId", farmerId);
+
+		List<Synchronization> resultList = new ArrayList<Synchronization>();
+		try {
 			resultList = query.getResultList();
 
 		} catch (NoResultException e) {

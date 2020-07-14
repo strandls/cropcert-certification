@@ -90,4 +90,15 @@ public class InspectionControllerImpl implements InspectionController {
 		}
 	}
 
+	@Override
+	@TokenAndUserAuthenticated(permissions = {Permissions.ICS_MANAGER})
+	public Response signByICSManager(HttpServletRequest request, String jsonString) {
+		try {
+			FarmersInspectionReport farmersInspectionReport = inspectionService.signByICSManager(request, jsonString);
+			return Response.ok().entity(farmersInspectionReport).build();
+		} catch (Exception e) {
+			throw new WebApplicationException(
+					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
+		}
+	}
 }

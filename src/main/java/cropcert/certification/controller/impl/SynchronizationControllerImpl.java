@@ -37,4 +37,26 @@ public class SynchronizationControllerImpl implements SynchronizationController 
 					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
 		}
 	}
+
+	@Override
+	public Response getReport(HttpServletRequest request, Integer version, Integer subVersion, Long farmerId) {
+		try {
+			Synchronization synchronization = synchronizationService.getReport(request, version, subVersion, farmerId);
+			return Response.ok().entity(synchronization).build();
+		} catch (Exception e) {
+			throw new WebApplicationException(
+					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
+		}
+	}
+	
+	@Override
+	public Response getReport(HttpServletRequest request, Integer version, Long farmerId) {
+		try {
+			List<Synchronization> synchronizations  = synchronizationService.getRecentSubversionforFarmers(request, version, farmerId);
+			return Response.ok().entity(synchronizations).build();
+		} catch (Exception e) {
+			throw new WebApplicationException(
+					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
+		}
+	}
 }
