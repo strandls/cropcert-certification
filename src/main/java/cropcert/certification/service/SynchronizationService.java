@@ -17,6 +17,8 @@ public interface SynchronizationService {
 			throws JsonParseException, JsonMappingException, IOException;
 
 	public Synchronization save(Synchronization synchronization);
+	
+	public Synchronization update(Synchronization synchronization);
 
 	public Synchronization findByPropertyWithCondtion(String property, String value, String condition);
 

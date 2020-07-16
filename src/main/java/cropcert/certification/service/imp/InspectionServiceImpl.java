@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.pac4j.core.profile.CommonProfile;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -30,7 +31,9 @@ import cropcert.certification.service.SynchronizationService;
 import cropcert.certification.util.UserUtil;
 import cropcert.user.ApiException;
 import cropcert.user.api.FarmerApi;
+import cropcert.user.api.UserApi;
 import cropcert.user.model.Farmer;
+import cropcert.user.model.User;
 
 public class InspectionServiceImpl extends AbstractService<Inspection> implements InspectionService {
 
@@ -39,6 +42,9 @@ public class InspectionServiceImpl extends AbstractService<Inspection> implement
 
 	@Inject
 	private InspectionDao inspectorDao;
+
+	@Inject
+	private UserApi userApi;
 
 	@Inject
 	private FarmerApi farmerApi;
@@ -207,34 +213,65 @@ public class InspectionServiceImpl extends AbstractService<Inspection> implement
 	}
 
 	@Override
-	public FarmersInspectionReport signByICSManager(HttpServletRequest request, String jsonString) throws ApiException {
+	public Inspection signByICSManager(HttpServletRequest request, String jsonString) throws ApiException {
+		
 		JSONObject jsonObject = new JSONObject(jsonString);
 		Long farmerId = jsonObject.getLong("farmerId");
 		Integer version = jsonObject.getInt("version");
 		Integer subVersion = jsonObject.getInt("subVersion");
-		Long icsManagerId = jsonObject.getLong("icsManagerId");
-		Synchronization synchronization = synchronizationService.getReport(request, version, subVersion, farmerId);
-		Long inspectionId = synchronization.getReportId();
+
+		CommonProfile profile = UserUtil.getUserDetails(request);
+		User user = userApi.find(Long.parseLong(profile.getId()));
+		String icsManagerName = user.getFirstName();
+		String icsManagerSignPath = user.getSign();
+		
+		return signSingleReport(request, farmerId, version, subVersion, icsManagerName, icsManagerSignPath);
+	}
+
+	@Override
+	public List<Inspection> bulkReportsSignByICSManager(HttpServletRequest request, String jsonString) throws NumberFormatException, ApiException {
+		CommonProfile profile = UserUtil.getUserDetails(request);
+		User user = userApi.find(Long.parseLong(profile.getId()));
+		String icsManagerName = user.getFirstName();
+		String icsManagerSignPath = user.getSign();
+		
+		JSONArray jsonArray = new JSONArray(jsonString);
+		
+		List<Inspection> inspections = new ArrayList<Inspection>();
+		for(int i = 0; i<jsonArray.length(); i++) {
+			JSONObject jsonObject = jsonArray.getJSONObject(i);
+			Long farmerId = jsonObject.getLong("farmerId");
+			Integer version = jsonObject.getInt("version");
+			Integer subVersion = jsonObject.getInt("subVersion");
+			inspections.add(signSingleReport(request, farmerId, version, subVersion, icsManagerName, icsManagerSignPath));
+		}
+		
+		return inspections;
+	}
+	
+	private Inspection signSingleReport(HttpServletRequest request, Long farmerId, Integer version, Integer subVersion, String icsManagerName, String icsManagerSignPath) {
+		Synchronization syncEntry = synchronizationService.getReport(request, version, subVersion, farmerId);
+		
+		Timestamp currentTime = new Timestamp(new Date().getTime());
+		
+		syncEntry.setVersion(version+1);
+		syncEntry.setSubVersion(0);
+		syncEntry.setLastUpdated(currentTime);
+
+		Long inspectionId = syncEntry.getReportId();
 		Inspection inspection = inspectionService.findById(inspectionId);
-
-		Farmer farmer = farmerApi.find(farmerId);
-
-		// TODO : workflow of the ics Manager.
 		Signature icsManagerSign = inspection.getIcsManager();
+		if(icsManagerSign == null) {
+			icsManagerSign = new Signature();
+		}
+		icsManagerSign.setDate(currentTime);
 		icsManagerSign.setDone(true);
-		Timestamp date = new Timestamp(new Date().getTime());
-		if(jsonObject.has("date"))
-			date = new Timestamp(jsonObject.getLong("date"));
-		icsManagerSign.setDate(date);
-		if(jsonObject.has("name"))
-			icsManagerSign.setName(jsonObject.getString("name"));
-		if(jsonObject.has("path"))
-			icsManagerSign.setPath(jsonObject.getString("path"));
+		icsManagerSign.setName(icsManagerName);
+		icsManagerSign.setPath(icsManagerSignPath);
+		
+		synchronizationService.update(syncEntry);
 		
 		inspection.setIcsManager(icsManagerSign);
-		update(inspection);
-
-		FarmersInspectionReport report = new FarmersInspectionReport(farmer, version, subVersion, inspection);
-		return report;
-	}
+		return update(inspection);
+	}	
 }

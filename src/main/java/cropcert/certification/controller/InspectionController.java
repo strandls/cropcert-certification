@@ -97,4 +97,15 @@ public interface InspectionController {
 	@ApiImplicitParams({
 			@ApiImplicitParam(name = "Authorization", value = "Authorization token", required = true, dataType = "string", paramType = "header") })
 	public Response signByICSManager(@Context HttpServletRequest request, String jsonString);
+	
+	@POST
+	@Path("ics/bulk/sign")
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Add sign of ICS manager", notes = "Returns succuess failure", response = FarmersInspectionReport.class)
+	@ApiResponses(value = {
+			@ApiResponse(code = 400, message = "Could not add sign of the ics manager", response = String.class),
+			@ApiResponse(code = 500, message = "ERROR", response = String.class) })
+	@ApiImplicitParams({
+			@ApiImplicitParam(name = "Authorization", value = "Authorization token", required = true, dataType = "string", paramType = "header") })
+	public Response bulkReportsSignByICSManager(@Context HttpServletRequest request, String jsonString);
 }
