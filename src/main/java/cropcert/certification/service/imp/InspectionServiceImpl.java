@@ -269,6 +269,13 @@ public class InspectionServiceImpl extends AbstractService<Inspection> implement
 		icsManagerSign.setName(icsManagerName);
 		icsManagerSign.setPath(icsManagerSignPath);
 		
+		List<Synchronization> prevSyncVersions = synchronizationService.getRecentSubversionforFarmers(request, version, farmerId);
+		for(Synchronization prevSyncVersion : prevSyncVersions) {
+			prevSyncVersion.setIsReportFinalized(true);
+			synchronizationService.update(prevSyncVersion);
+		}
+	
+		syncEntry.setIsReportFinalized(true);
 		synchronizationService.update(syncEntry);
 		
 		inspection.setIcsManager(icsManagerSign);

@@ -2,6 +2,7 @@ package cropcert.certification.dao;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.NoResultException;
 
@@ -60,7 +61,7 @@ public class SynchronizationDao extends AbstractDao<Synchronization, Long> {
 	}
 
 	public List<Synchronization> getSynchronizationForCollectionCenter(Integer limit, Integer offset,
-			List<Long> farmerIds) {
+			Set<Long> farmerIds) {
 		String farmerIdsString = "(";
 		for (Long farmerId : farmerIds) {
 			farmerIdsString += farmerId + ",";

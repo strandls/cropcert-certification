@@ -2,7 +2,9 @@ package cropcert.certification.service.imp;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -13,6 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import cropcert.certification.dao.SynchronizationDao;
 import cropcert.certification.pojo.Synchronization;
+import cropcert.certification.pojo.response.ICSFarmerList;
 import cropcert.certification.service.AbstractService;
 import cropcert.certification.service.SynchronizationService;
 import cropcert.user.ApiException;
@@ -36,7 +39,7 @@ public class SynchronizationServiceImpl extends AbstractService<Synchronization>
 	}
 
 	@Override
-	public List<Synchronization> getSynchronizationForCollectionCenter(HttpServletRequest request, Integer limit,
+	public List<ICSFarmerList> getSynchronizationForCollectionCenter(HttpServletRequest request, Integer limit,
 			Integer offset, Long ccCode) throws ApiException {
 
 		List<Farmer> farmers = new ArrayList<Farmer>();
@@ -46,15 +49,22 @@ public class SynchronizationServiceImpl extends AbstractService<Synchronization>
 			farmers = farmerApi.findAll(limit, offset);
 		}
 
-		List<Long> farmerIds = new ArrayList<Long>();
+		Map<Long, Farmer> farmerIdToFarmer = new HashMap<Long, Farmer>();
 		for (Farmer farmer : farmers) {
 			Long id = farmer.getId();
-			farmerIds.add(id);
+			farmerIdToFarmer.put(id, farmer);
 		}
 
-		List<Synchronization> synchronizations = synchronizationDao.getSynchronizationForCollectionCenter(limit, offset, farmerIds);
+		List<Synchronization> synchronizations = synchronizationDao.getSynchronizationForCollectionCenter(limit, offset, farmerIdToFarmer.keySet());
 
-		return synchronizations;
+		List<ICSFarmerList> icsFarmerLists = new ArrayList<ICSFarmerList>();
+		for (Synchronization synchronization : synchronizations) {
+			Farmer farmer = farmerIdToFarmer.get(synchronization.getFarmerId());
+			ICSFarmerList icsFarmerList = new ICSFarmerList(farmer, synchronization);
+			icsFarmerLists.add(icsFarmerList);
+		}
+
+		return icsFarmerLists;
 	}
 
 	@Override

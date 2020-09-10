@@ -20,6 +20,7 @@ import cropcert.certification.filter.Permissions;
 import cropcert.certification.filter.TokenAndUserAuthenticated;
 import cropcert.certification.pojo.Inspection;
 import cropcert.certification.pojo.Synchronization;
+import cropcert.certification.pojo.response.ICSFarmerList;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -39,7 +40,7 @@ public interface SynchronizationController {
 	@Path("all/ccCode")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value = "Get all the synchronization entry for collection center", response = Synchronization.class, responseContainer = "List")
+	@ApiOperation(value = "Get all the synchronization entry for collection center", response = ICSFarmerList.class, responseContainer = "List")
 	public Response getAllByCCCode(@Context HttpServletRequest request,
 			@DefaultValue("-1") @QueryParam("limit") Integer limit,
 			@DefaultValue("-1") @QueryParam("offset") Integer offset,

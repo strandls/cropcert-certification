@@ -9,6 +9,7 @@ import javax.ws.rs.core.Response;
 
 import cropcert.certification.controller.SynchronizationController;
 import cropcert.certification.pojo.Synchronization;
+import cropcert.certification.pojo.response.ICSFarmerList;
 import cropcert.certification.service.SynchronizationService;
 
 public class SynchronizationControllerImpl implements SynchronizationController {
@@ -19,7 +20,7 @@ public class SynchronizationControllerImpl implements SynchronizationController 
 	@Override
 	public Response getAllByCCCode(HttpServletRequest request, Integer limit, Integer offset, Long ccCode) {
 		try {
-			List<Synchronization> reports = synchronizationService.getSynchronizationForCollectionCenter(request, limit, offset, ccCode);
+			List<ICSFarmerList> reports = synchronizationService.getSynchronizationForCollectionCenter(request, limit, offset, ccCode);
 			return Response.ok().entity(reports).build();
 		} catch (Exception e) {
 			throw new WebApplicationException(
