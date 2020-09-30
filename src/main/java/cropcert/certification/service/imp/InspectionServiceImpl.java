@@ -24,6 +24,7 @@ import cropcert.certification.dao.InspectionDao;
 import cropcert.certification.pojo.Inspection;
 import cropcert.certification.pojo.Signature;
 import cropcert.certification.pojo.Synchronization;
+import cropcert.certification.pojo.request.ICSSignRequest;
 import cropcert.certification.pojo.response.FarmersInspectionReport;
 import cropcert.certification.service.AbstractService;
 import cropcert.certification.service.InspectionService;
@@ -213,12 +214,11 @@ public class InspectionServiceImpl extends AbstractService<Inspection> implement
 	}
 
 	@Override
-	public Inspection signByICSManager(HttpServletRequest request, String jsonString) throws ApiException {
+	public FarmersInspectionReport signByICSManager(HttpServletRequest request, ICSSignRequest icsSignRequest) throws ApiException {
 		
-		JSONObject jsonObject = new JSONObject(jsonString);
-		Long farmerId = jsonObject.getLong("farmerId");
-		Integer version = jsonObject.getInt("version");
-		Integer subVersion = jsonObject.getInt("subVersion");
+		Long farmerId = icsSignRequest.getFarmerId();
+		Integer version = icsSignRequest.getVersion();
+		Integer subVersion = icsSignRequest.getSubVersion();
 
 		CommonProfile profile = UserUtil.getUserDetails(request);
 		User user = userApi.find(Long.parseLong(profile.getId()));
@@ -229,27 +229,24 @@ public class InspectionServiceImpl extends AbstractService<Inspection> implement
 	}
 
 	@Override
-	public List<Inspection> bulkReportsSignByICSManager(HttpServletRequest request, String jsonString) throws NumberFormatException, ApiException {
+	public List<FarmersInspectionReport> bulkReportsSignByICSManager(HttpServletRequest request, List<ICSSignRequest> icsSignRequests) throws NumberFormatException, ApiException {
 		CommonProfile profile = UserUtil.getUserDetails(request);
 		User user = userApi.find(Long.parseLong(profile.getId()));
 		String icsManagerName = user.getFirstName();
 		String icsManagerSignPath = user.getSign();
 		
-		JSONArray jsonArray = new JSONArray(jsonString);
-		
-		List<Inspection> inspections = new ArrayList<Inspection>();
-		for(int i = 0; i<jsonArray.length(); i++) {
-			JSONObject jsonObject = jsonArray.getJSONObject(i);
-			Long farmerId = jsonObject.getLong("farmerId");
-			Integer version = jsonObject.getInt("version");
-			Integer subVersion = jsonObject.getInt("subVersion");
+		List<FarmersInspectionReport> inspections = new ArrayList<FarmersInspectionReport>();
+		for(ICSSignRequest icsSignRequest : icsSignRequests) {
+			Long farmerId = icsSignRequest.getFarmerId();
+			Integer version = icsSignRequest.getVersion();
+			Integer subVersion = icsSignRequest.getSubVersion();
 			inspections.add(signSingleReport(request, farmerId, version, subVersion, icsManagerName, icsManagerSignPath));
 		}
 		
 		return inspections;
 	}
 	
-	private Inspection signSingleReport(HttpServletRequest request, Long farmerId, Integer version, Integer subVersion, String icsManagerName, String icsManagerSignPath) {
+	private FarmersInspectionReport signSingleReport(HttpServletRequest request, Long farmerId, Integer version, Integer subVersion, String icsManagerName, String icsManagerSignPath) throws ApiException {
 		Synchronization syncEntry = synchronizationService.getReport(request, version, subVersion, farmerId);
 		
 		Timestamp currentTime = new Timestamp(new Date().getTime());
@@ -279,6 +276,11 @@ public class InspectionServiceImpl extends AbstractService<Inspection> implement
 		synchronizationService.update(syncEntry);
 		
 		inspection.setIcsManager(icsManagerSign);
-		return update(inspection);
+		inspection = update(inspection);
+		
+		Farmer farmer = farmerApi.find(farmerId);
+		FarmersInspectionReport inspectionReport = new FarmersInspectionReport(farmer, version, subVersion, inspection);
+		
+		return inspectionReport;
 	}	
 }

@@ -3,6 +3,8 @@
  */
 package cropcert.certification.controller;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
@@ -18,11 +20,13 @@ import javax.ws.rs.core.Response;
 
 import cropcert.certification.ApiConstants;
 import cropcert.certification.pojo.Inspection;
+import cropcert.certification.pojo.request.ICSSignRequest;
 import cropcert.certification.pojo.response.FarmersInspectionReport;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
@@ -96,16 +100,16 @@ public interface InspectionController {
 			@ApiResponse(code = 500, message = "ERROR", response = String.class) })
 	@ApiImplicitParams({
 			@ApiImplicitParam(name = "Authorization", value = "Authorization token", required = true, dataType = "string", paramType = "header") })
-	public Response signByICSManager(@Context HttpServletRequest request, String jsonString);
+	public Response signByICSManager(@Context HttpServletRequest request, @ApiParam(name = "ICSSignRequest") ICSSignRequest icsSignRequest);
 	
 	@POST
 	@Path("ics/bulk/sign")
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value = "Add sign of ICS manager", notes = "Returns succuess failure", response = FarmersInspectionReport.class)
+	@ApiOperation(value = "Add sign of ICS manager", notes = "Returns succuess failure", response = FarmersInspectionReport.class, responseContainer="List")
 	@ApiResponses(value = {
 			@ApiResponse(code = 400, message = "Could not add sign of the ics manager", response = String.class),
 			@ApiResponse(code = 500, message = "ERROR", response = String.class) })
 	@ApiImplicitParams({
 			@ApiImplicitParam(name = "Authorization", value = "Authorization token", required = true, dataType = "string", paramType = "header") })
-	public Response bulkReportsSignByICSManager(@Context HttpServletRequest request, String jsonString);
+	public Response bulkReportsSignByICSManager(@Context HttpServletRequest request, @ApiParam(name = "ICSSignRequests") List<ICSSignRequest> icsSignRequest);
 }

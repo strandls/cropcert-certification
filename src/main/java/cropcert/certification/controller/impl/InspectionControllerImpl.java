@@ -14,8 +14,10 @@ import cropcert.certification.controller.InspectionController;
 import cropcert.certification.filter.Permissions;
 import cropcert.certification.filter.TokenAndUserAuthenticated;
 import cropcert.certification.pojo.Inspection;
+import cropcert.certification.pojo.request.ICSSignRequest;
 import cropcert.certification.pojo.response.FarmersInspectionReport;
 import cropcert.certification.service.InspectionService;
+import io.swagger.annotations.ApiParam;
 
 public class InspectionControllerImpl implements InspectionController {
 
@@ -92,9 +94,9 @@ public class InspectionControllerImpl implements InspectionController {
 
 	@Override
 	@TokenAndUserAuthenticated(permissions = {Permissions.ICS_MANAGER})
-	public Response signByICSManager(@Context HttpServletRequest request, String jsonString) {
+	public Response signByICSManager(@Context HttpServletRequest request, @ApiParam(name = "ICSSignRequest") ICSSignRequest icsSignRequest) {
 		try {
-			Inspection inspection = inspectionService.signByICSManager(request, jsonString);
+			FarmersInspectionReport inspection = inspectionService.signByICSManager(request, icsSignRequest);
 			return Response.ok().entity(inspection).build();
 		} catch (Exception e) {
 			throw new WebApplicationException(
@@ -104,9 +106,9 @@ public class InspectionControllerImpl implements InspectionController {
 	
 	@Override
 	@TokenAndUserAuthenticated(permissions = {Permissions.ICS_MANAGER})
-	public Response bulkReportsSignByICSManager(@Context HttpServletRequest request, String jsonString) {
+	public Response bulkReportsSignByICSManager(@Context HttpServletRequest request, @ApiParam(name = "ICSSignRequest") List<ICSSignRequest> icsSignRequests) {
 		try {
-			List<Inspection> inspections = inspectionService.bulkReportsSignByICSManager(request, jsonString);
+			List<FarmersInspectionReport> inspections = inspectionService.bulkReportsSignByICSManager(request, icsSignRequests);
 			return Response.ok().entity(inspections).build();
 		} catch (Exception e) {
 			throw new WebApplicationException(

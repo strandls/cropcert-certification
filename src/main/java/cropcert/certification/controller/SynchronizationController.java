@@ -44,7 +44,7 @@ public interface SynchronizationController {
 	public Response getAllByCCCode(@Context HttpServletRequest request,
 			@DefaultValue("-1") @QueryParam("limit") Integer limit,
 			@DefaultValue("-1") @QueryParam("offset") Integer offset,
-			@DefaultValue("-1") @QueryParam("ccCode") Long ccCode);
+			@DefaultValue("-1") @QueryParam("ccCodes") String ccCodes);
 
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)

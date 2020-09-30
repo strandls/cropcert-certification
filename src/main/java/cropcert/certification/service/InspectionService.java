@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
 import cropcert.certification.pojo.Inspection;
+import cropcert.certification.pojo.request.ICSSignRequest;
 import cropcert.certification.pojo.response.FarmersInspectionReport;
 import cropcert.user.ApiException;
 
@@ -36,8 +37,8 @@ public interface InspectionService {
 	public List<FarmersInspectionReport> bulkUpload(HttpServletRequest request, String jsonString)
 			throws JsonParseException, JsonMappingException, IOException, ApiException;
 
-	public Inspection signByICSManager(HttpServletRequest request, String jsonString) throws ApiException;
+	public FarmersInspectionReport signByICSManager(HttpServletRequest request, ICSSignRequest icsSignRequest) throws ApiException;
 
-	public List<Inspection> bulkReportsSignByICSManager(HttpServletRequest request, String jsonString) throws NumberFormatException, ApiException;
+	public List<FarmersInspectionReport> bulkReportsSignByICSManager(HttpServletRequest request, List<ICSSignRequest> icsSignRequests) throws NumberFormatException, ApiException;
 
 }

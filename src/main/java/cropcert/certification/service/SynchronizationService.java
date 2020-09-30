@@ -27,7 +27,7 @@ public interface SynchronizationService {
 			int offset);
 
 	public List<ICSFarmerList> getSynchronizationForCollectionCenter(HttpServletRequest request, Integer limit,
-			Integer offset, Long ccCode) throws ApiException;
+			Integer offset, String ccCodes) throws ApiException;
 
 	public Synchronization getReport(HttpServletRequest request, Integer version, Integer subVersion, Long farmerId);
 

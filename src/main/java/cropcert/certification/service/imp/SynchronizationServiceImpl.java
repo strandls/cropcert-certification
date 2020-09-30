@@ -40,13 +40,18 @@ public class SynchronizationServiceImpl extends AbstractService<Synchronization>
 
 	@Override
 	public List<ICSFarmerList> getSynchronizationForCollectionCenter(HttpServletRequest request, Integer limit,
-			Integer offset, Long ccCode) throws ApiException {
+			Integer offset, String ccCodes) throws ApiException {
+		
+		String [] ccCodesString = ccCodes.split(",");
 
 		List<Farmer> farmers = new ArrayList<Farmer>();
-		if (ccCode != -1) {
-			farmers = farmerApi.getFarmerForCollectionCenter(ccCode, limit, offset);
-		} else {
-			farmers = farmerApi.findAll(limit, offset);
+		for(String ccCodeString : ccCodesString) {
+			Long ccCode = Long.parseLong(ccCodeString);
+			if (ccCode != -1) {
+				farmers = farmerApi.getFarmerForCollectionCenter(ccCode, -1,-1);
+			} else {
+				farmers = farmerApi.findAll(-1, -1);
+			}
 		}
 
 		Map<Long, Farmer> farmerIdToFarmer = new HashMap<Long, Farmer>();
