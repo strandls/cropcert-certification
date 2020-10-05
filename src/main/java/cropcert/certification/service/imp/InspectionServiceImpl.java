@@ -11,18 +11,12 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.pac4j.core.profile.CommonProfile;
-
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 
 import cropcert.certification.dao.InspectionDao;
 import cropcert.certification.pojo.Inspection;
-import cropcert.certification.pojo.Signature;
 import cropcert.certification.pojo.Synchronization;
 import cropcert.certification.pojo.request.ICSSignRequest;
 import cropcert.certification.pojo.response.FarmersInspectionReport;
@@ -32,20 +26,12 @@ import cropcert.certification.service.SynchronizationService;
 import cropcert.certification.util.UserUtil;
 import cropcert.user.ApiException;
 import cropcert.user.api.FarmerApi;
-import cropcert.user.api.UserApi;
 import cropcert.user.model.Farmer;
-import cropcert.user.model.User;
 
 public class InspectionServiceImpl extends AbstractService<Inspection> implements InspectionService {
 
 	@Inject
-	private ObjectMapper objectMapper;
-
-	@Inject
 	private InspectionDao inspectorDao;
-
-	@Inject
-	private UserApi userApi;
 
 	@Inject
 	private FarmerApi farmerApi;
@@ -73,20 +59,19 @@ public class InspectionServiceImpl extends AbstractService<Inspection> implement
 	}
 
 	@Override
-	public FarmersInspectionReport save(HttpServletRequest request, String jsonString)
+	public FarmersInspectionReport save(HttpServletRequest request, Inspection inspection)
 			throws JsonParseException, JsonMappingException, IOException, ApiException {
-		jsonString = "[" + jsonString + "]";
-		return bulkUpload(request, jsonString).get(0);
+		List<Inspection> inspections = new ArrayList<Inspection>();
+		inspections.add(inspection);
+		return bulkUpload(request, inspections).get(0);
 	}
 
 	@Override
-	public List<FarmersInspectionReport> bulkUpload(HttpServletRequest request, String jsonString)
+	public List<FarmersInspectionReport> bulkUpload(HttpServletRequest request, List<Inspection> inspections)
 			throws JsonParseException, JsonMappingException, IOException, ApiException {
-		JSONArray jsonArray = new JSONArray(jsonString);
+		
 		List<FarmersInspectionReport> farmersInspectionReports = new ArrayList<FarmersInspectionReport>();
-		for (int i = 0; i < jsonArray.length(); i++) {
-			JSONObject jsonObject = jsonArray.getJSONObject(i);
-			Inspection inspection = objectMapper.readValue(jsonObject.toString(), Inspection.class);
+		for (Inspection inspection : inspections) {
 
 			Long farmerId = inspection.getFarmerId();
 			String inspectorIdString = UserUtil.getUserDetails(request).getId();
@@ -129,6 +114,7 @@ public class InspectionServiceImpl extends AbstractService<Inspection> implement
 
 			farmersInspectionReport.setInspection(inspection);
 			farmersInspectionReports.add(farmersInspectionReport);
+
 		}
 		return farmersInspectionReports;
 	}
@@ -143,7 +129,7 @@ public class InspectionServiceImpl extends AbstractService<Inspection> implement
 		for (Inspection inspection : inspections) {
 			Long inspectionId = inspection.getId();
 			Synchronization syncs = synchronizationService.findByPropertyWithCondtion("reportId",
-					inspectionId.toString(), "=");
+					inspectionId, "=");
 
 			FarmersInspectionReport report = new FarmersInspectionReport(farmer, syncs.getVersion(),
 					syncs.getSubVersion(), inspection);
@@ -214,73 +200,48 @@ public class InspectionServiceImpl extends AbstractService<Inspection> implement
 	}
 
 	@Override
-	public FarmersInspectionReport signByICSManager(HttpServletRequest request, ICSSignRequest icsSignRequest) throws ApiException {
-		
+	public FarmersInspectionReport signByICSManager(HttpServletRequest request, ICSSignRequest icsSignRequest)
+			throws ApiException {
 		Long farmerId = icsSignRequest.getFarmerId();
 		Integer version = icsSignRequest.getVersion();
 		Integer subVersion = icsSignRequest.getSubVersion();
-
-		CommonProfile profile = UserUtil.getUserDetails(request);
-		User user = userApi.find(Long.parseLong(profile.getId()));
-		String icsManagerName = user.getFirstName();
-		String icsManagerSignPath = user.getSign();
-		
-		return signSingleReport(request, farmerId, version, subVersion, icsManagerName, icsManagerSignPath);
-	}
-
-	@Override
-	public List<FarmersInspectionReport> bulkReportsSignByICSManager(HttpServletRequest request, List<ICSSignRequest> icsSignRequests) throws NumberFormatException, ApiException {
-		CommonProfile profile = UserUtil.getUserDetails(request);
-		User user = userApi.find(Long.parseLong(profile.getId()));
-		String icsManagerName = user.getFirstName();
-		String icsManagerSignPath = user.getSign();
-		
-		List<FarmersInspectionReport> inspections = new ArrayList<FarmersInspectionReport>();
-		for(ICSSignRequest icsSignRequest : icsSignRequests) {
-			Long farmerId = icsSignRequest.getFarmerId();
-			Integer version = icsSignRequest.getVersion();
-			Integer subVersion = icsSignRequest.getSubVersion();
-			inspections.add(signSingleReport(request, farmerId, version, subVersion, icsManagerName, icsManagerSignPath));
-		}
-		
-		return inspections;
-	}
-	
-	private FarmersInspectionReport signSingleReport(HttpServletRequest request, Long farmerId, Integer version, Integer subVersion, String icsManagerName, String icsManagerSignPath) throws ApiException {
-		Synchronization syncEntry = synchronizationService.getReport(request, version, subVersion, farmerId);
-		
 		Timestamp currentTime = new Timestamp(new Date().getTime());
 		
-		syncEntry.setVersion(version+1);
+		List<Synchronization> prevSyncVersions = synchronizationService.getRecentSubversionforFarmers(request, version,
+				farmerId);
+		for (Synchronization prevSyncVersion : prevSyncVersions) {
+			prevSyncVersion.setIsReportFinalized(true);
+			prevSyncVersion.setLastUpdated(currentTime);
+			synchronizationService.update(prevSyncVersion);
+		}
+
+		Synchronization syncEntry = synchronizationService.getReport(request, icsSignRequest.getVersion(), icsSignRequest.getSubVersion(), farmerId);
+		syncEntry.setVersion(version + 1);
 		syncEntry.setSubVersion(0);
 		syncEntry.setLastUpdated(currentTime);
+		synchronizationService.update(syncEntry);
 
 		Long inspectionId = syncEntry.getReportId();
 		Inspection inspection = inspectionService.findById(inspectionId);
-		Signature icsManagerSign = inspection.getIcsManager();
-		if(icsManagerSign == null) {
-			icsManagerSign = new Signature();
-		}
-		icsManagerSign.setDate(currentTime);
-		icsManagerSign.setDone(true);
-		icsManagerSign.setName(icsManagerName);
-		icsManagerSign.setPath(icsManagerSignPath);
-		
-		List<Synchronization> prevSyncVersions = synchronizationService.getRecentSubversionforFarmers(request, version, farmerId);
-		for(Synchronization prevSyncVersion : prevSyncVersions) {
-			prevSyncVersion.setIsReportFinalized(true);
-			synchronizationService.update(prevSyncVersion);
-		}
-	
-		syncEntry.setIsReportFinalized(true);
-		synchronizationService.update(syncEntry);
-		
-		inspection.setIcsManager(icsManagerSign);
+		inspection.setIcsManager(icsSignRequest.getSignature());
 		inspection = update(inspection);
-		
+
 		Farmer farmer = farmerApi.find(farmerId);
 		FarmersInspectionReport inspectionReport = new FarmersInspectionReport(farmer, version, subVersion, inspection);
-		
+
 		return inspectionReport;
-	}	
+	}
+
+	@Override
+	public List<FarmersInspectionReport> bulkReportsSignByICSManager(HttpServletRequest request,
+			List<ICSSignRequest> icsSignRequests) throws NumberFormatException, ApiException {
+		
+		List<FarmersInspectionReport> inspections = new ArrayList<FarmersInspectionReport>();
+		for (ICSSignRequest icsSignRequest : icsSignRequests) {
+			inspections
+					.add(signByICSManager(request, icsSignRequest));
+		}
+
+		return inspections;
+	}
 }

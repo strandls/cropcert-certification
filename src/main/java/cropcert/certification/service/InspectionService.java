@@ -18,9 +18,6 @@ public interface InspectionService {
 
 	public List<Inspection> findAll(HttpServletRequest request, Integer limit, Integer offset);
 
-	public FarmersInspectionReport save(HttpServletRequest request, String jsonString)
-			throws JsonParseException, JsonMappingException, IOException, ApiException;
-
 	public Inspection findById(Long id);
 
 	public List<Inspection> getReportsForInspector(HttpServletRequest request, Integer limit, Integer offset,
@@ -34,7 +31,10 @@ public interface InspectionService {
 	public List<FarmersInspectionReport> getAllReportsOfFarmer(HttpServletRequest request, Long farmerId)
 			throws ApiException;
 
-	public List<FarmersInspectionReport> bulkUpload(HttpServletRequest request, String jsonString)
+	public FarmersInspectionReport save(HttpServletRequest request, Inspection inspection)
+			throws JsonParseException, JsonMappingException, IOException, ApiException;
+	
+	public List<FarmersInspectionReport> bulkUpload(HttpServletRequest request, List<Inspection> inspections)
 			throws JsonParseException, JsonMappingException, IOException, ApiException;
 
 	public FarmersInspectionReport signByICSManager(HttpServletRequest request, ICSSignRequest icsSignRequest) throws ApiException;

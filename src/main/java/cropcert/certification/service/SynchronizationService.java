@@ -21,7 +21,7 @@ public interface SynchronizationService {
 	
 	public Synchronization update(Synchronization synchronization);
 
-	public Synchronization findByPropertyWithCondtion(String property, String value, String condition);
+	public Synchronization findByPropertyWithCondtion(String property, Object value, String condition);
 
 	public List<Synchronization> getByPropertyWithCondtion(String property, Object value, String condition, int limit,
 			int offset);

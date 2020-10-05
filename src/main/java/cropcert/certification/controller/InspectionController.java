@@ -77,7 +77,7 @@ public interface InspectionController {
 			@ApiResponse(code = 500, message = "ERROR", response = String.class) })
 	@ApiImplicitParams({
 			@ApiImplicitParam(name = "Authorization", value = "Authorization token", required = true, dataType = "string", paramType = "header") })
-	public Response addInspection(@Context HttpServletRequest request, String jsonString);
+	public Response addInspection(@Context HttpServletRequest request, @ApiParam(name = "inspection") Inspection inspection);
 
 	@POST
 	@Path("bulk")
@@ -89,7 +89,7 @@ public interface InspectionController {
 			@ApiResponse(code = 500, message = "ERROR", response = String.class) })
 	@ApiImplicitParams({
 			@ApiImplicitParam(name = "Authorization", value = "Authorization token", required = true, dataType = "string", paramType = "header") })
-	public Response bulkUpload(@Context HttpServletRequest request, String jsonString);
+	public Response bulkUpload(@Context HttpServletRequest request, @ApiParam(name = "inspections") List<Inspection> inspections);
 
 	@POST
 	@Path("ics/sign")

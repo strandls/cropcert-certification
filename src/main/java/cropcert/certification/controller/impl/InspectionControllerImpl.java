@@ -70,9 +70,9 @@ public class InspectionControllerImpl implements InspectionController {
 	
 	@Override
 	@TokenAndUserAuthenticated(permissions = { Permissions.INSPECTOR })
-	public Response bulkUpload(@Context HttpServletRequest request, String jsonString) {
+	public Response bulkUpload(@Context HttpServletRequest request, @ApiParam(name = "inspections") List<Inspection> inspections) {
 		try {
-			List<FarmersInspectionReport> inspection = inspectionService.bulkUpload(request, jsonString);
+			List<FarmersInspectionReport> inspection = inspectionService.bulkUpload(request, inspections);
 			return Response.ok().entity(inspection).build();
 		} catch (Exception e) {
 			throw new WebApplicationException(
@@ -82,9 +82,9 @@ public class InspectionControllerImpl implements InspectionController {
 
 	@Override
 	@TokenAndUserAuthenticated(permissions = { Permissions.INSPECTOR })
-	public Response addInspection(@Context HttpServletRequest request, String jsonString) {
+	public Response addInspection(@Context HttpServletRequest request, @ApiParam(name = "inspection") Inspection inspection) {
 		try {
-			FarmersInspectionReport farmersInspectionReport = inspectionService.save(request, jsonString);
+			FarmersInspectionReport farmersInspectionReport = inspectionService.save(request, inspection);
 			return Response.ok().entity(farmersInspectionReport).build();
 		} catch (Exception e) {
 			throw new WebApplicationException(

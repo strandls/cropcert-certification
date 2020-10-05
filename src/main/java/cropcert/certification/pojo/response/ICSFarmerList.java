@@ -16,11 +16,12 @@ public class ICSFarmerList {
 	private String cooperativeName;
 
 	private Long reportId;
+	private Long prevReportId;
 	private Integer version;
 	private Integer subVersion;
 	private Boolean isReportFinalized;
 	private Timestamp lastUpdated;
-
+	
 	public ICSFarmerList() {
 		super();
 		// TODO Auto-generated constructor stub
@@ -113,6 +114,14 @@ public class ICSFarmerList {
 
 	public void setReportId(Long reportId) {
 		this.reportId = reportId;
+	}
+	
+	public Long getPrevReportId() {
+		return prevReportId;
+	}
+	
+	public void setPrevReportId(Long prevReportId) {
+		this.prevReportId = prevReportId;
 	}
 
 	public Integer getVersion() {

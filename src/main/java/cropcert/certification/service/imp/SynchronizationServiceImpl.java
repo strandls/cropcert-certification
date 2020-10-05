@@ -48,10 +48,13 @@ public class SynchronizationServiceImpl extends AbstractService<Synchronization>
 		for(String ccCodeString : ccCodesString) {
 			Long ccCode = Long.parseLong(ccCodeString);
 			if (ccCode != -1) {
-				farmers = farmerApi.getFarmerForCollectionCenter(ccCode, -1,-1);
+				List<Farmer> farmerList = farmerApi.getFarmerForCollectionCenter(ccCode, -1,-1);
+				farmers.addAll(farmerList);
 			} else {
-				farmers = farmerApi.findAll(-1, -1);
+				List<Farmer> farmerList = farmerApi.findAll(-1, -1);
+				farmers.addAll(farmerList);
 			}
+			
 		}
 
 		Map<Long, Farmer> farmerIdToFarmer = new HashMap<Long, Farmer>();
@@ -65,7 +68,22 @@ public class SynchronizationServiceImpl extends AbstractService<Synchronization>
 		List<ICSFarmerList> icsFarmerLists = new ArrayList<ICSFarmerList>();
 		for (Synchronization synchronization : synchronizations) {
 			Farmer farmer = farmerIdToFarmer.get(synchronization.getFarmerId());
+			Integer version = synchronization.getVersion();
+			Integer subVersion = synchronization.getSubVersion();
+			Long farmerId = synchronization.getFarmerId();
+			
+			Long prevReportId = null; 
+			if(version == 0 || (version == 1 && subVersion == 0)) {
+				prevReportId = null;
+			} else if(subVersion == 0){
+				Synchronization sync = synchronizationDao.getReport(version-1, 0, farmerId);
+				prevReportId = sync.getReportId();
+			} else {
+				Synchronization sync = synchronizationDao.getReport(version, 0, farmerId);
+				prevReportId = sync.getReportId();
+			}
 			ICSFarmerList icsFarmerList = new ICSFarmerList(farmer, synchronization);
+			icsFarmerList.setPrevReportId(prevReportId);
 			icsFarmerLists.add(icsFarmerList);
 		}
 
