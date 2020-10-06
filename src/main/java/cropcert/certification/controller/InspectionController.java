@@ -42,13 +42,13 @@ public interface InspectionController {
 	@Path("{id}")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value = "Get Inspection report by Id", response = Inspection.class, responseContainer = "List")
+	@ApiOperation(value = "Get Inspection report by Id", response = FarmersInspectionReport.class)
 	public Response findById(@Context HttpServletRequest request, @PathParam("id") Long id);
 
 	@Path("all/ccCode")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value = "Get all the inspection report from collection center given by ccCode", response = Inspection.class, responseContainer = "List")
+	@ApiOperation(value = "Get all the inspection report from collection center given by ccCode", response = FarmersInspectionReport.class, responseContainer = "List")
 	public Response getAllByCCCode(@Context HttpServletRequest request,
 			@DefaultValue("-1") @QueryParam("limit") Integer limit,
 			@DefaultValue("-1") @QueryParam("offset") Integer offset,
@@ -57,21 +57,21 @@ public interface InspectionController {
 	@Path("farmer/latest")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value = "Get latest report of the farmer", response = Inspection.class, responseContainer = "List")
+	@ApiOperation(value = "Get latest report of the farmer", response = FarmersInspectionReport.class)
 	public Response getLatestFarmerReport(@Context HttpServletRequest request,
 			@DefaultValue("-1") @QueryParam("farmerId") Long farmerId);
 
 	@Path("farmer/all")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value = "Get all the inspection report of a single farmer", response = Inspection.class, responseContainer = "List")
+	@ApiOperation(value = "Get all the inspection report of a single farmer", response = FarmersInspectionReport.class, responseContainer = "List")
 	public Response findAllFarmerReport(@Context HttpServletRequest request,
 			@DefaultValue("-1") @QueryParam("farmerId") Long farmerId);
 
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value = "Add inspection report", notes = "Returns succuess failure", response = Inspection.class)
+	@ApiOperation(value = "Add inspection report", notes = "Returns succuess failure", response = FarmersInspectionReport.class)
 	@ApiResponses(value = {
 			@ApiResponse(code = 400, message = "Could not add inspection report", response = String.class),
 			@ApiResponse(code = 500, message = "ERROR", response = String.class) })

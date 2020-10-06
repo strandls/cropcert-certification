@@ -54,6 +54,19 @@ public class InspectionServiceImpl extends AbstractService<Inspection> implement
 	}
 
 	@Override
+	public FarmersInspectionReport getFarmerInspectionReport(Long id) {
+		Inspection inspection = super.findById(id);
+		Synchronization sync = synchronizationService.findByPropertyWithCondtion("reportId", inspection.getId(), "=");
+		Farmer farmer = null;
+		try {
+			farmer = farmerApi.find(inspection.getFarmerId());
+		} catch (ApiException e) {
+			e.printStackTrace();
+		}
+		return new FarmersInspectionReport(farmer, sync.getVersion(), sync.getSubVersion(), inspection);
+	}
+
+	@Override
 	public List<Inspection> findAll(HttpServletRequest request, Integer limit, Integer offset) {
 		return findAll(limit, offset);
 	}
@@ -69,7 +82,7 @@ public class InspectionServiceImpl extends AbstractService<Inspection> implement
 	@Override
 	public List<FarmersInspectionReport> bulkUpload(HttpServletRequest request, List<Inspection> inspections)
 			throws JsonParseException, JsonMappingException, IOException, ApiException {
-		
+
 		List<FarmersInspectionReport> farmersInspectionReports = new ArrayList<FarmersInspectionReport>();
 		for (Inspection inspection : inspections) {
 
@@ -128,8 +141,7 @@ public class InspectionServiceImpl extends AbstractService<Inspection> implement
 		List<FarmersInspectionReport> reports = new ArrayList<FarmersInspectionReport>();
 		for (Inspection inspection : inspections) {
 			Long inspectionId = inspection.getId();
-			Synchronization syncs = synchronizationService.findByPropertyWithCondtion("reportId",
-					inspectionId, "=");
+			Synchronization syncs = synchronizationService.findByPropertyWithCondtion("reportId", inspectionId, "=");
 
 			FarmersInspectionReport report = new FarmersInspectionReport(farmer, syncs.getVersion(),
 					syncs.getSubVersion(), inspection);
@@ -206,7 +218,7 @@ public class InspectionServiceImpl extends AbstractService<Inspection> implement
 		Integer version = icsSignRequest.getVersion();
 		Integer subVersion = icsSignRequest.getSubVersion();
 		Timestamp currentTime = new Timestamp(new Date().getTime());
-		
+
 		List<Synchronization> prevSyncVersions = synchronizationService.getRecentSubversionforFarmers(request, version,
 				farmerId);
 		for (Synchronization prevSyncVersion : prevSyncVersions) {
@@ -215,7 +227,8 @@ public class InspectionServiceImpl extends AbstractService<Inspection> implement
 			synchronizationService.update(prevSyncVersion);
 		}
 
-		Synchronization syncEntry = synchronizationService.getReport(request, icsSignRequest.getVersion(), icsSignRequest.getSubVersion(), farmerId);
+		Synchronization syncEntry = synchronizationService.getReport(request, icsSignRequest.getVersion(),
+				icsSignRequest.getSubVersion(), farmerId);
 		syncEntry.setVersion(version + 1);
 		syncEntry.setSubVersion(0);
 		syncEntry.setLastUpdated(currentTime);
@@ -235,11 +248,10 @@ public class InspectionServiceImpl extends AbstractService<Inspection> implement
 	@Override
 	public List<FarmersInspectionReport> bulkReportsSignByICSManager(HttpServletRequest request,
 			List<ICSSignRequest> icsSignRequests) throws NumberFormatException, ApiException {
-		
+
 		List<FarmersInspectionReport> inspections = new ArrayList<FarmersInspectionReport>();
 		for (ICSSignRequest icsSignRequest : icsSignRequests) {
-			inspections
-					.add(signByICSManager(request, icsSignRequest));
+			inspections.add(signByICSManager(request, icsSignRequest));
 		}
 
 		return inspections;

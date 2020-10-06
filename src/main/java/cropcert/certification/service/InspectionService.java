@@ -19,6 +19,8 @@ public interface InspectionService {
 	public List<Inspection> findAll(HttpServletRequest request, Integer limit, Integer offset);
 
 	public Inspection findById(Long id);
+	
+	public FarmersInspectionReport getFarmerInspectionReport(Long id) throws ApiException;
 
 	public List<Inspection> getReportsForInspector(HttpServletRequest request, Integer limit, Integer offset,
 			Long inspectorId, Long farmerId);

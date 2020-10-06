@@ -27,7 +27,7 @@ public class InspectionControllerImpl implements InspectionController {
 	@Override
 	public Response findById(@Context HttpServletRequest request, Long id) {
 		try {
-			Inspection inspection = inspectionService.findById(id);
+			FarmersInspectionReport inspection = inspectionService.getFarmerInspectionReport(id);
 			return Response.ok().entity(inspection).build();
 		} catch (Exception e) {
 			throw new WebApplicationException(
