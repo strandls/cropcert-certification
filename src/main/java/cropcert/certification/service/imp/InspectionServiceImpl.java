@@ -6,8 +6,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -16,6 +18,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.google.inject.Inject;
 
 import cropcert.certification.dao.InspectionDao;
+import cropcert.certification.dao.SynchronizationDao;
 import cropcert.certification.pojo.Inspection;
 import cropcert.certification.pojo.Synchronization;
 import cropcert.certification.pojo.request.ICSSignRequest;
@@ -41,6 +44,9 @@ public class InspectionServiceImpl extends AbstractService<Inspection> implement
 
 	@Inject
 	private SynchronizationService synchronizationService;
+	
+	@Inject
+	private SynchronizationDao synchronizationDao;
 
 	@Inject
 	public InspectionServiceImpl(InspectionDao dao) {
@@ -110,14 +116,10 @@ public class InspectionServiceImpl extends AbstractService<Inspection> implement
 				List<Synchronization> syncs = synchronizationService.getByPropertyWithCondtion("reportId", inspectionId,
 						"=", -1, -1);
 
+				
 				Synchronization synchronization = syncs.get(0);
-				if (synchronization.getIsReportFinalized()) {
-					version = synchronization.getVersion() + 1;
-					subVersion = 1;
-				} else {
-					version = synchronization.getVersion();
-					subVersion = synchronization.getSubVersion() + 1;
-				}
+				version = synchronization.getVersion();
+				subVersion = synchronization.getSubVersion() + 1;
 			}
 
 			inspection = save(inspection);
@@ -187,7 +189,7 @@ public class InspectionServiceImpl extends AbstractService<Inspection> implement
 	private Collection<FarmersInspectionReport> getLatestReportForFarmers(List<Farmer> farmers, Integer limit,
 			Integer offset) {
 		Map<Long, FarmersInspectionReport> reports = new HashMap<Long, FarmersInspectionReport>();
-		List<Long> farmerIds = new ArrayList<Long>();
+		Set<Long> farmerIds = new HashSet<Long>();
 		for (Farmer farmer : farmers) {
 			Long id = farmer.getId();
 			farmerIds.add(id);
@@ -195,19 +197,17 @@ public class InspectionServiceImpl extends AbstractService<Inspection> implement
 			reports.put(id, farmersLastReport);
 		}
 
-		List<Inspection> inspections = inspectorDao.getLatestReportForFarmers(limit, offset, farmerIds);
-
-		for (Inspection inspection : inspections) {
-			Long inspectionId = inspection.getId();
-			List<Synchronization> syncs = synchronizationService.getByPropertyWithCondtion("reportId", inspectionId,
-					"=", -1, -1);
-			Long id = inspection.getFarmerId();
-			FarmersInspectionReport farmersLastReport = reports.get(id);
-			farmersLastReport.setInspection(inspection);
-			farmersLastReport.setVersion(syncs.get(0).getVersion());
-			farmersLastReport.setSubVersion(syncs.get(0).getSubVersion());
+		List<Synchronization> syncs = synchronizationDao.getSynchronizationForFarmers(limit, offset, farmerIds);
+		
+		for(Synchronization sync : syncs) {
+			Long farmerId = sync.getFarmerId();
+			FarmersInspectionReport farmersInspectionReport = reports.get(farmerId);
+			Inspection inspection = inspectorDao.findById(sync.getReportId());
+			farmersInspectionReport.setInspection(inspection);
+			farmersInspectionReport.setVersion(syncs.get(0).getVersion());
+			farmersInspectionReport.setSubVersion(syncs.get(0).getSubVersion());
 		}
-
+		
 		return reports.values();
 	}
 

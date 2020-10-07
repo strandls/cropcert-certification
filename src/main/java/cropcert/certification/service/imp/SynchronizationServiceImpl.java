@@ -50,7 +50,7 @@ public class SynchronizationServiceImpl extends AbstractService<Synchronization>
 			farmerIdToFarmer.put(id, farmer);
 		}
 
-		List<Synchronization> synchronizations = synchronizationDao.getSynchronizationForCollectionCenter(limit, offset, farmerIdToFarmer.keySet());
+		List<Synchronization> synchronizations = synchronizationDao.getSynchronizationForFarmers(limit, offset, farmerIdToFarmer.keySet());
 
 		List<ICSFarmerList> icsFarmerLists = new ArrayList<ICSFarmerList>();
 		for (Synchronization synchronization : synchronizations) {

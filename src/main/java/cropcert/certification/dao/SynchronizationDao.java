@@ -60,7 +60,7 @@ public class SynchronizationDao extends AbstractDao<Synchronization, Long> {
 		return resultList.get(0);
 	}
 
-	public List<Synchronization> getSynchronizationForCollectionCenter(Integer limit, Integer offset,
+	public List<Synchronization> getSynchronizationForFarmers(Integer limit, Integer offset,
 			Set<Long> farmerIds) {
 		String farmerIdsString = "(";
 		for (Long farmerId : farmerIds) {
