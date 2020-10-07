@@ -68,10 +68,9 @@ public class SynchronizationDao extends AbstractDao<Synchronization, Long> {
 		}
 		farmerIdsString += "-1)";
 
-		String queryStr = "select * from " + daoType.getSimpleName() + " t " + " where farmer_id in " + farmerIdsString
-				+ " and "
-				+ " last_updated = (select max(last_updated) from synchronization s where s.farmer_id = t.farmer_id)";
-
+		String queryStr = "select distinct on(farmer_id) * from " + daoType.getSimpleName() + " where farmer_id in "
+				+ farmerIdsString + " order by farmer_id, version desc, sub_version desc";
+		
 		Session session = sessionFactory.openSession();
 		org.hibernate.query.Query query = session.createNativeQuery(queryStr, Synchronization.class);
 

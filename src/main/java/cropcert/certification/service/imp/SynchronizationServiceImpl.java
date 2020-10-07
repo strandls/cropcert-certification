@@ -72,13 +72,8 @@ public class SynchronizationServiceImpl extends AbstractService<Synchronization>
 			Integer subVersion = synchronization.getSubVersion();
 			Long farmerId = synchronization.getFarmerId();
 			
-			Long prevReportId = null; 
-			if(version == 0 || (version == 1 && subVersion == 0)) {
-				prevReportId = null;
-			} else if(subVersion == 0){
-				Synchronization sync = synchronizationDao.getReport(version-1, 0, farmerId);
-				prevReportId = sync.getReportId();
-			} else {
+			Long prevReportId = null;
+			if(version != 0) {
 				Synchronization sync = synchronizationDao.getReport(version, 0, farmerId);
 				prevReportId = sync.getReportId();
 			}
