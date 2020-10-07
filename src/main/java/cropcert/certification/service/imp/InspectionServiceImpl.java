@@ -20,6 +20,7 @@ import com.google.inject.Inject;
 import cropcert.certification.dao.InspectionDao;
 import cropcert.certification.dao.SynchronizationDao;
 import cropcert.certification.pojo.Inspection;
+import cropcert.certification.pojo.Signature;
 import cropcert.certification.pojo.Synchronization;
 import cropcert.certification.pojo.request.ICSSignRequest;
 import cropcert.certification.pojo.response.FarmersInspectionReport;
@@ -232,11 +233,15 @@ public class InspectionServiceImpl extends AbstractService<Inspection> implement
 		syncEntry.setVersion(version + 1);
 		syncEntry.setSubVersion(0);
 		syncEntry.setLastUpdated(currentTime);
+		syncEntry.setIsReportFinalized(true);
 		synchronizationService.update(syncEntry);
 
 		Long inspectionId = syncEntry.getReportId();
 		Inspection inspection = inspectionService.findById(inspectionId);
-		inspection.setIcsManager(icsSignRequest.getSignature());
+		Signature icsSign = icsSignRequest.getSignature();
+		if(icsSign.getDate() == null)
+			icsSign.setDate(currentTime);
+		inspection.setIcsManager(icsSign);
 		inspection = update(inspection);
 
 		Farmer farmer = farmerApi.find(farmerId);
