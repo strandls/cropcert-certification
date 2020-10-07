@@ -40,23 +40,10 @@ public class SynchronizationServiceImpl extends AbstractService<Synchronization>
 
 	@Override
 	public List<ICSFarmerList> getSynchronizationForCollectionCenter(HttpServletRequest request, Integer limit,
-			Integer offset, String ccCodes) throws ApiException {
+			Integer offset, String ccCodes, Boolean isPendingOnly, String firstName) throws ApiException {
 		
-		String [] ccCodesString = ccCodes.split(",");
-
-		List<Farmer> farmers = new ArrayList<Farmer>();
-		for(String ccCodeString : ccCodesString) {
-			Long ccCode = Long.parseLong(ccCodeString);
-			if (ccCode != -1) {
-				List<Farmer> farmerList = farmerApi.getFarmerForCollectionCenter(ccCode, -1,-1);
-				farmers.addAll(farmerList);
-			} else {
-				List<Farmer> farmerList = farmerApi.findAll(-1, -1);
-				farmers.addAll(farmerList);
-			}
-			
-		}
-
+		List<Farmer> farmers = farmerApi.getFarmerForMultipleCollectionCenter(ccCodes, firstName, limit, offset);
+		
 		Map<Long, Farmer> farmerIdToFarmer = new HashMap<Long, Farmer>();
 		for (Farmer farmer : farmers) {
 			Long id = farmer.getId();
@@ -67,9 +54,10 @@ public class SynchronizationServiceImpl extends AbstractService<Synchronization>
 
 		List<ICSFarmerList> icsFarmerLists = new ArrayList<ICSFarmerList>();
 		for (Synchronization synchronization : synchronizations) {
+			if(isPendingOnly && synchronization.getIsReportFinalized()) 
+				continue;
 			Farmer farmer = farmerIdToFarmer.get(synchronization.getFarmerId());
 			Integer version = synchronization.getVersion();
-			Integer subVersion = synchronization.getSubVersion();
 			Long farmerId = synchronization.getFarmerId();
 			
 			Long prevReportId = null;

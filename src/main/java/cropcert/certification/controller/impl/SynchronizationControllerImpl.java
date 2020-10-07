@@ -18,9 +18,9 @@ public class SynchronizationControllerImpl implements SynchronizationController 
 	private SynchronizationService synchronizationService;
 	
 	@Override
-	public Response getAllByCCCode(HttpServletRequest request, Integer limit, Integer offset, String ccCodes) {
+	public Response getAllByCCCode(HttpServletRequest request, Integer limit, Integer offset, String ccCodes, Boolean pendingReportOnly, String firstName) {
 		try {
-			List<ICSFarmerList> reports = synchronizationService.getSynchronizationForCollectionCenter(request, limit, offset, ccCodes);
+			List<ICSFarmerList> reports = synchronizationService.getSynchronizationForCollectionCenter(request, limit, offset, ccCodes, pendingReportOnly, firstName);
 			return Response.ok().entity(reports).build();
 		} catch (Exception e) {
 			throw new WebApplicationException(
