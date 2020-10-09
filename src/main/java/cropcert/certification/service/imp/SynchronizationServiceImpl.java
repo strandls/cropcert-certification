@@ -71,9 +71,17 @@ public class SynchronizationServiceImpl extends AbstractService<Synchronization>
 				Synchronization sync = synchronizationDao.getReport(version-1, 0, farmerId);
 				prevReportId = sync.getReportId();
 			}
+			Long lastApprovedReportId;
+			if(version == 0)
+				lastApprovedReportId = null;
+			else {
+				Synchronization sync = synchronizationDao.getReport(version, 0, farmerId);
+				lastApprovedReportId = sync.getReportId();
+			}
 
 			ICSFarmerList icsFarmerList = new ICSFarmerList(farmer, synchronization);
 			icsFarmerList.setPrevReportId(prevReportId);
+			icsFarmerList.setLastApprovedReportId(lastApprovedReportId);
 			icsFarmerLists.add(icsFarmerList);
 		}
 

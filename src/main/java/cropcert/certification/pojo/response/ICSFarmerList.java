@@ -17,6 +17,7 @@ public class ICSFarmerList {
 
 	private Long reportId;
 	private Long prevReportId;
+	private Long lastApprovedReportId;
 	private Integer version;
 	private Integer subVersion;
 	private Boolean isReportFinalized;
@@ -122,6 +123,14 @@ public class ICSFarmerList {
 	
 	public void setPrevReportId(Long prevReportId) {
 		this.prevReportId = prevReportId;
+	}
+	
+	public Long getLastApprovedReportId() {
+		return lastApprovedReportId;
+	}
+	
+	public void setLastApprovedReportId(Long lastApprovedReportId) {
+		this.lastApprovedReportId = lastApprovedReportId;
 	}
 
 	public Integer getVersion() {
