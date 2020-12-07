@@ -14,8 +14,8 @@ public enum FieldSeparationType {
 	TREES("TREES"),
 	@XmlEnumValue("FENCE")
 	FENCE("FENCE"),
-	@XmlEnumValue("DRENCH")
-	DRENCH("DRENCH"),
+	@XmlEnumValue("TRENCH")
+	TRENCH("TRENCH"),
 	@XmlEnumValue("OTHER")
 	OTHER("OTHER");
 	

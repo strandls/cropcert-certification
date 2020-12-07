@@ -81,7 +81,7 @@ public class InspectionControllerImpl implements InspectionController {
 	}
 
 	@Override
-	@TokenAndUserAuthenticated(permissions = { Permissions.INSPECTOR })
+	@TokenAndUserAuthenticated(permissions = { Permissions.INSPECTOR, Permissions.UNION, Permissions.CO_PERSON })
 	public Response addInspection(@Context HttpServletRequest request, @ApiParam(name = "inspection") Inspection inspection) {
 		try {
 			FarmersInspectionReport farmersInspectionReport = inspectionService.save(request, inspection);
