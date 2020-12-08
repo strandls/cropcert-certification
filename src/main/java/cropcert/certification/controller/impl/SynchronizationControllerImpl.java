@@ -8,6 +8,8 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
 import cropcert.certification.controller.SynchronizationController;
+import cropcert.certification.filter.Permissions;
+import cropcert.certification.filter.TokenAndUserAuthenticated;
 import cropcert.certification.pojo.Synchronization;
 import cropcert.certification.pojo.response.ICSFarmerList;
 import cropcert.certification.service.SynchronizationService;
@@ -29,6 +31,7 @@ public class SynchronizationControllerImpl implements SynchronizationController 
 	}
 	
 	@Override
+	@TokenAndUserAuthenticated(permissions = { Permissions.INSPECTOR, Permissions.UNION, Permissions.CO_PERSON })
 	public Response addSyncEntry(HttpServletRequest request, String jsonString) {
 		try {
 			Synchronization synchronization = synchronizationService.save(request, jsonString);
